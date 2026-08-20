@@ -42,7 +42,11 @@ remember-recent-files=false
 remove-old-trash-files=true
 remove-old-temp-files=true
 old-files-age=uint32 7
-usb-protection=true
+# usb-protection drives usbguard over D-Bus, whose polkit policy demands
+# admin auth — it blocked the live desktop with an unanswerable
+# "This USBGuard action needs authorization" prompt. usbguard is no longer
+# shipped (see docs/HARDENING.md), so this must stay off.
+usb-protection=false
 
 [org/gnome/desktop/notifications]
 show-in-lock-screen=false

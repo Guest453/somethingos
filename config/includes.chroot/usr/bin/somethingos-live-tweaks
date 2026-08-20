@@ -1,0 +1,29 @@
+#!/bin/sh
+# Disable the idle screen lock, but only in a live session.
+#
+# The installed system keeps lock-enabled=true / idle-delay=300 from
+# /etc/dconf/db/local.d/00-somethingos, which is the right default once a
+# user owns the machine and knows their password. In a live session it is a
+# trap: live-config assigns `someone` a password documented nowhere, so an
+# idle lock is unanswerable and costs the user the whole session.
+#
+# This deliberately runs as a session autostart rather than a live-config
+# component. A live-config component that called `dconf update` hung
+# live-config.service indefinitely during boot (systemd gives that unit no
+# timeout, so the machine never reached a desktop). By the time an autostart
+# runs, the session bus exists and gsettings is safe.
+
+grep -q 'boot=live' /proc/cmdline || exit 0
+
+if command -v gsettings >/dev/null 2>&1; then
+  gsettings set org.gnome.desktop.session idle-delay 0 2>/dev/null || true
+  gsettings set org.gnome.desktop.screensaver lock-enabled false 2>/dev/null || true
+fi
+
+# Plasma flavour uses its own locker.
+if command -v kwriteconfig5 >/dev/null 2>&1; then
+  kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock false 2>/dev/null || true
+  kwriteconfig5 --file kscreenlockerrc --group Daemon --key LockOnResume false 2>/dev/null || true
+fi
+
+exit 0

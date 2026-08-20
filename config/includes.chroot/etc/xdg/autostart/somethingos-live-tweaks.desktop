@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=SomethingOS live session tweaks
+Comment=Disable the idle screen lock in live sessions only
+Exec=somethingos-live-tweaks
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-Phase=Applications

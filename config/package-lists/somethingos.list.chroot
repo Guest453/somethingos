@@ -86,7 +86,6 @@ acct
 auditd
 chrony
 jitterentropy-rngd
-usbguard
 needrestart
 
 # networking
