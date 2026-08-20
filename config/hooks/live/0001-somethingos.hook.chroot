@@ -136,6 +136,15 @@ if [[ -f /usr/share/somethingos/something-askpass ]]; then
   install -m 0755 /usr/share/somethingos/something-askpass /usr/bin/something-askpass
 fi
 
+# usbguard ships enabled with an empty policy, which blocks every USB device
+# (dead mouse/keyboard on first boot). Our baseline rules.conf fixes that, but
+# git cannot carry its 0600 mode, and usbguard's policy must not be world
+# readable.
+if [[ -f /etc/usbguard/rules.conf ]]; then
+  chown root:root /etc/usbguard/rules.conf
+  chmod 0600 /etc/usbguard/rules.conf
+fi
+
 # First-boot welcome
 if [[ -f /usr/share/somethingos/something-welcome ]]; then
   install -m 0755 /usr/share/somethingos/something-welcome /usr/bin/something-welcome

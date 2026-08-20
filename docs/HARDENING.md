@@ -23,8 +23,29 @@ already flipped.
 | Firefox ESR policies | no telemetry, HTTPS-only, no Pocket | browser |
 | chrony + jitterentropy | on | time + entropy |
 | core dumps | ulimit 0 | less leftover state |
+| USBGuard | permissive baseline + GNOME lock-screen gating | see below |
 
 See `config/includes.chroot/etc/sysctl.d/99-somethingos.conf`.
+
+### USBGuard
+
+`usbguard` is installed and enabled, but Debian ships it with
+`ImplicitPolicyTarget=block` and **no** `rules.conf`. Left alone that blocks
+every USB device as soon as the daemon starts — including the keyboard and
+mouse — and on a machine booted from a USB stick it can deauthorize the boot
+medium itself.
+
+We therefore ship `config/includes.chroot/etc/usbguard/rules.conf` with a
+permissive baseline (`allow`). The actual protection is GNOME's
+`org.gnome.desktop.privacy usb-protection=true`, which has usbguard reject
+devices plugged in **while the screen is locked**.
+
+To restrict an installed machine to the hardware you own:
+
+```
+sudo usbguard generate-policy > /etc/usbguard/rules.conf
+sudo systemctl restart usbguard
+```
 
 ## The `something` tool
 
