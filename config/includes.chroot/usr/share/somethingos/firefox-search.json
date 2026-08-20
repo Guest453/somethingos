@@ -1,0 +1,62 @@
+{
+  "version": 8,
+  "locale": "en-US",
+  "default": "duckduckgo",
+  "defaultPrivate": "duckduckgo",
+  "engines": [
+    {
+      "id": "duckduckgo",
+      "name": "DuckDuckGo",
+      "shortName": "DDG",
+      "description": "DuckDuckGo — privacy, simplified.",
+      "searchUrl": "https://duckduckgo.com/?q={searchTerms}",
+      "suggestUrl": "",
+      "icon": "https://duckduckgo.com/favicon.ico",
+      "aliases": ["duckduckgo.com", "ddg"],
+      "isSuggestExtensionProvided": false,
+      "searchAccessPoint": { "address": "https://duckduckgo.com/?q={searchTerms}" },
+      "trendingUrl": "",
+      "suggestionsCalibrationRemote": false
+    },
+    {
+      "id": "ddg-lite",
+      "name": "DuckDuckGo Lite",
+      "shortName": "DDG Lite",
+      "description": "DuckDuckGo HTML-only, no JS.",
+      "searchUrl": "https://html.duckduckgo.com/html/?q={searchTerms}",
+      "icon": "https://duckduckgo.com/favicon.ico",
+      "aliases": ["lite"],
+      "isSuggestExtensionProvided": false
+    },
+    {
+      "id": "somethingwefound",
+      "name": "SearXNG (somethingwefound)",
+      "shortName": "somethingwefound",
+      "description": "Self-hostable metasearch; the default instance we found.",
+      "searchUrl": "https://search.somethingwefound.org/?q={searchTerms}",
+      "icon": "",
+      "aliases": ["searxng"],
+      "isSuggestExtensionProvided": false
+    },
+    {
+      "id": "mojeek",
+      "name": "Mojeek",
+      "shortName": "Mojeek",
+      "description": "Independent crawler-based search. No tracking.",
+      "searchUrl": "https://www.mojeek.com/search?q={searchTerms}",
+      "icon": "https://www.mojeek.com/favicon.ico",
+      "aliases": ["mojeek"],
+      "isSuggestExtensionProvided": false
+    },
+    {
+      "id": "brave",
+      "name": "Brave Search",
+      "shortName": "Brave",
+      "description": "Brave's own index, anonymous by default.",
+      "searchUrl": "https://search.brave.com/search?q={searchTerms}",
+      "icon": "https://search.brave.com/favicon.ico",
+      "aliases": ["brave"],
+      "isSuggestExtensionProvided": false
+    }
+  ]
+}

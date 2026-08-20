@@ -1,0 +1,4 @@
+# drop system-wide .xpi extensions here
+# they will be force-installed for every Firefox profile
+# recommended: uBlock0@raymondhill.net.xpi (the AMO xpi renamed to its
+# add-on ID, fetched once at build time)

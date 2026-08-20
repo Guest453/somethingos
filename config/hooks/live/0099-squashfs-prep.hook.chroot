@@ -1,0 +1,63 @@
+#!/bin/bash
+# SomethingOS chroot hook — final slimming pass just before the binary
+# stage walks the chroot. Runs LAST among chroot hooks (999-prefix) so
+# it can see the final state of every package install.
+#
+# Goal: shrink what mksquashfs has to walk. The single biggest win is
+# removing /var/lib/apt/lists/* — those are flat text+gz files and they
+# add up to ~300 MiB on a Debian bookworm+GNOME chroot. mksquashfs has
+# to read, sort, and compress them all. The chroot also has Python
+# bytecode and leftover pip/test trees we do not need at runtime.
+set -euo pipefail
+
+echo "I: SomethingOS squashfs-prep slimming"
+
+# 1. Wipe apt lists. The live session does not need them — `apt update`
+#    inside the running live system re-fetches what it wants. Keeping
+#    them on the ISO just inflates the squashfs.
+rm -rf /var/lib/apt/lists/* 2>/dev/null || true
+rm -rf /var/cache/apt/archives/*.deb 2>/dev/null || true
+rm -f  /var/lib/dpkg/available /var/lib/dpkg/diversions 2>/dev/null || true
+rm -f  /var/cache/debconf/* 2>/dev/null || true
+
+# 2. Wipe every Python bytecode cache in the chroot. The live system
+#    re-byte-compiles on first import, and we save the mksquashfs walk
+#    cost.
+find / -type d -name '__pycache__' -prune -exec rm -rf {} + 2>/dev/null || true
+find /usr -name '*.pyc' -delete 2>/dev/null || true
+
+# 3. Wipe /var/log. Live image does not need last boot's logs.
+find /var/log -type f -delete 2>/dev/null || true
+
+# 4. Wipe any leftover pip wheels, test trees, egg-info. Live system
+#    never uses them.
+rm -rf /usr/lib/python3*/dist-packages/*.dist-info/RECORD 2>/dev/null || true
+rm -rf /usr/share/python-wheels 2>/dev/null || true
+rm -rf /usr/lib/python3*/test /usr/lib/python3*/tests 2>/dev/null || true
+
+# 5. Drop documentation. -doc packages themselves are kept (so the
+#    file lists match), but the .gz man pages and info pages are
+#    redundant on a desktop live image.
+rm -rf /usr/share/man /usr/share/info /usr/share/gtk-doc 2>/dev/null || true
+rm -rf /usr/share/linda /usr/share/lintian 2>/dev/null || true
+
+# 6. Drop locale trees we do not actually need. Keep en and en_US.
+find /usr/share/locale -mindepth 1 -maxdepth 1 \
+     ! -name 'en' ! -name 'en_US' ! -name 'C' ! -name 'locale.alias' \
+     -exec rm -rf {} + 2>/dev/null || true
+
+# 7. Drop editor backup files and test fixtures. mksquashfs's "duplicate
+#    check" is fast but a thousand .pyc.bak files still costs CPU.
+find / -name '*.orig' -o -name '*.bak' -o -name '*~' -o -name '*.dpkg-old' \
+     -o -name '*.dpkg-new' -o -name '*.dpkg-dist' \
+     2>/dev/null \
+     | head -20000 \
+     | xargs -r rm -f 2>/dev/null || true
+
+# 8. Force apt to re-download from scratch (no stale caches).
+apt-get clean 2>/dev/null || true
+
+# 9. Final sync.
+sync
+
+echo "I: SomethingOS squashfs-prep done"

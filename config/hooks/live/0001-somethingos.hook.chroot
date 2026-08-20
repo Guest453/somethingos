@@ -98,11 +98,31 @@ fi
 # Disable noisy Debian motd scripts we replace
 chmod -x /etc/update-motd.d/* 2>/dev/null || true
 
-# firefox policies live in /etc/firefox-esr
+# firefox policies + distributed extensions live in /etc/firefox-esr
+# (also mirror into /etc/firefox for non-ESR builds that ever appear)
 mkdir -p /etc/firefox-esr/policies /etc/firefox/policies
+mkdir -p /etc/firefox-esr/distribution/extensions /etc/firefox/distribution/extensions
 if [[ -f /usr/share/somethingos/firefox-policies.json ]]; then
   install -m 0644 /usr/share/somethingos/firefox-policies.json /etc/firefox-esr/policies/policies.json
   install -m 0644 /usr/share/somethingos/firefox-policies.json /etc/firefox/policies/policies.json
+fi
+# Ship a system-wide distribution folder so all profiles pick up uBlock Origin
+# without ever phoning Mozilla's AMO. Anything we drop in here is force-installed
+# by Firefox for every profile on the system.
+if [[ -d /usr/share/somethingos/firefox-extensions ]]; then
+  cp -a /usr/share/somethingos/firefox-extensions/. /etc/firefox-esr/distribution/extensions/
+  cp -a /usr/share/somethingos/firefox-extensions/. /etc/firefox/distribution/extensions/
+  chmod -R a+rX /etc/firefox-esr/distribution/extensions /etc/firefox/distribution/extensions
+fi
+# A pinned distribution.ini so the browser knows about our default scope
+if [[ -f /usr/share/somethingos/firefox-distribution.ini ]]; then
+  install -m 0644 /usr/share/somethingos/firefox-distribution.ini /etc/firefox-esr/distribution/distribution.ini
+  install -m 0644 /usr/share/somethingos/firefox-distribution.ini /etc/firefox/distribution/distribution.ini
+fi
+# Distribution search policy — keeps the locked search list even after a refresh
+if [[ -f /usr/share/somethingos/firefox-search.json ]]; then
+  install -m 0644 /usr/share/somethingos/firefox-search.json /etc/firefox-esr/distribution/search.json
+  install -m 0644 /usr/share/somethingos/firefox-search.json /etc/firefox/distribution/search.json
 fi
 
 # something(1)
@@ -132,5 +152,12 @@ rm -f /var/lib/dbus/machine-id || true
 
 # Drop caches of apt lists to keep the squashfs lean-ish
 apt-get clean || true
+
+# Slim the chroot right after package install. The 0099 hook does a more
+# thorough pass just before the binary stage walks the chroot; this is
+# the cheap early sweep. The main reason this matters: the longer the
+# apt lists and per-package caches sit in the chroot, the more
+# subsequent package operations have to walk them.
+rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb 2>/dev/null || true
 
 echo "I: SomethingOS chroot hook finished"

@@ -26,7 +26,7 @@ for f in \
   config/includes.chroot/etc/os-release \
   config/includes.chroot/etc/skel/.config/neofetch/config.conf \
   branding/logo.png branding/wallpaper.png branding/grub.png \
-  website/index.html website/session/index.html
+  website/index.html website/session/index.html website/unleashed/index.html
 do
   if [[ -e "$f" ]]; then ok "$f"; else bad "missing $f"; fi
 done

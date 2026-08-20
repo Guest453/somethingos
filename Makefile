@@ -29,7 +29,14 @@ help:
 	  '  make preview             Serve the product site on :8080' \
 	  '  make check               Lint scripts and required files' \
 	  '  make clean               Remove ISO artefacts, keep cache' \
-	  '  make distclean           Remove cache and chroot as well'
+	  '  make distclean           Remove cache and chroot as well' \
+	  '' \
+	  '  Tunables (env):' \
+	  '    SQUASHFS_COMP=xz|zstd|lz4   (default zstd — fast)' \
+	  '    SQUASHFS_LEVEL=1..9         (default 3)' \
+	  '    SQUASHFS_FAST=0             disable the mksquashfs wrapper' \
+	  '    APT_INDICES=false           drop apt lists from the image' \
+	  '    MIRROR=, MIRROR_SECURITY=   Debian mirrors'
 
 info:
 	@printf '%s\n' \

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SomethingOS Unleashed — gotta go fast, without telemetry</title>
+  <meta name="description" content="The day/night operating system. Day Mode is GNU. Night Mode is the Werehog, and there are no telemetry pings. Cyber Space is a thing now.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/unleashed.css">
+  <link rel="icon" href="../assets/logo.png">
+</head>
+<body>
+  <div class="sky"></div>
+  <div class="ground"></div>
+  <div class="rings" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="../">something<span>os</span></a>
+      <ul>
+        <li><a href="#day">day mode</a></li>
+        <li><a href="#night">night mode</a></li>
+        <li><a href="#cyber">cyber space</a></li>
+        <li><a href="#press">press</a></li>
+        <li><a href="#download" class="dl">download ↓</a></li>
+      </ul>
+    </nav>
+
+    <header class="hero">
+      <div class="stamp">
+        <span class="dot"></span>
+        SOMETHINGOS 2.0 · UNLEASHED · CODENAME <em>SHADOW</em>
+      </div>
+
+      <h1>
+        <span class="kicker">Gotta go fast.</span>
+        <span class="line">Without telemetry.</span>
+        <span class="line italic">Day mode. Night mode. Cyber Space.</span>
+      </h1>
+
+      <p class="lede">
+        The first operating system with a built-in <strong>werehog mode</strong>.
+        You boot. The sun is up. You are <code>someone</code> on a hedgehog-themed
+        machine that respects you. The sun goes down. You become the night shift.
+        All telemetry is sent to <code>nothing.weforgot</code>, which is
+        <code>0.0.0.0</code> in <code>/etc/hosts</code>, as is tradition.
+      </p>
+
+      <div class="cta">
+        <a class="btn primary" href="#download">Download the ISO</a>
+        <a class="btn" href="#day">What is day mode?</a>
+        <a class="btn ghost" href="../">back to somethingos</a>
+      </div>
+
+      <div class="hero-grid">
+        <figure class="card-day">
+          <img src="img/sonic-classic.webp" alt="Classic Sonic mid-sprint">
+          <figcaption>day mode · GNU · cyan · open</figcaption>
+        </figure>
+        <figure class="card-night">
+          <img src="img/werehog-official.jpg" alt="The Werehog under moonlight">
+          <figcaption>night mode · AppArmor · dark · closed</figcaption>
+        </figure>
+        <figure class="card-cyber">
+          <img src="img/frontiers-open.jpg" alt="A floating green island world">
+          <figcaption>cyber space · VMs · containers</figcaption>
+        </figure>
+      </div>
+
+      <div class="quip">
+        <p>“It's a hedgehog. It's an OS. Both are extremely fast. Neither phones home. We are not okay.”</p>
+        <span class="by">— internal slack, right before the rename</span>
+      </div>
+    </header>
+
+    <section id="day" class="day-band">
+      <div class="band-inner">
+        <div class="text">
+          <h2>Day mode. The sun is up.</h2>
+          <p class="lede">
+            GNOME Shadow. Adwaita dark, cyan cursor, dash-to-dock, dash-to-panel,
+            a wallpaper that is, on inspection, just Sonic running. The system is
+            loud and friendly and open. You can read source while the system tray
+            does not phone Mozilla, Apple, Microsoft, or anyone else. The default
+            browser has telemetry <em>locked</em> to <code>nothing.weforgot/v1/sink</code>.
+          </p>
+          <ul class="feat">
+            <li><b>Gotta go fast.</b> <code>apt</code> uses the fast mirror. <code>zstd -T0</code> is the default.</li>
+            <li><b>Ring buffer of one.</b> Every window has its own tab. Tabs do not share storage.</li>
+            <li><b>Dash to dock.</b> Because you wanted dock.</li>
+            <li><b>Dash to panel.</b> Because you also wanted a panel.</li>
+            <li><b>uBlock Origin.</b> Force-installed. uBlock0 cannot be uninstalled. It is the only extension allowed.</li>
+          </ul>
+        </div>
+        <div class="art">
+          <img src="img/frontiers-emerald.png" alt="A floating chaos emerald in ancient ruins">
+          <div class="glow"></div>
+          <span class="caption">fig. 1 — a chaos emerald, before being routed to /dev/null</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="night" class="night-band">
+      <div class="band-inner reverse">
+        <div class="art">
+          <img src="img/werehog-frontiers.jpg" alt="The Werehog, claws out">
+          <div class="moon"></div>
+        </div>
+        <div class="text">
+          <h2>Night mode. The sun is down.</h2>
+          <p class="lede">
+            At sunset, the live session switches to the <em>night shift</em>.
+            Night mode is built around a hardened AppArmor profile that we
+            lovingly call <code>werehog-mode</code>. The kernel drops
+            <code>ptrace_scope</code> to 3, MAC randomization rotates, network
+            prediction dies, all the services you forgot about get
+            <code>systemctl mask</code>'d. It is the same Debian. It is also
+            completely different Debian. Stay away from the windows.
+          </p>
+          <ul class="feat">
+            <li><b>Werehog mode.</b> AppArmor profile denies 47% more syscalls than our previous profile. We counted.</li>
+            <li><b>Claws out.</b> <code>unshare -n</code> for every user service.</li>
+            <li><b>No window.</b> No windows that you didn't ask for. We mean literal windows. <code>Xephyr</code> is <em>gone</em>.</li>
+            <li><b>No ring.</b> No <code>gnome-software</code> in night mode. We do not need rings. We have rings inside.</li>
+            <li><b>The night is long.</b> Battery-friendly. <code>tuned</code> profile <code>somethingos-power-saver</code>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="cyber" class="cyber-band">
+      <div class="band-inner">
+        <div class="text">
+          <h2>Cyber Space. The third place.</h2>
+          <p class="lede">
+            Cyber Space is the optional container layer. It is a QEMU/KVM-backed
+            microVM with a virtio-blk root, a 9p shared folder for your rings,
+            and no network adapter at all unless you explicitly attach one.
+            In other words: it is a place you can fall very fast through and
+            not be observed doing so.
+          </p>
+          <ul class="feat">
+            <li><b>Spin up a Cyber Space.</b> <code>something cyber new</code></li>
+            <li><b>Fall through one.</b> <code>something cyber run untrusted-app</code></li>
+            <li><b>Score.</b> <code>something cyber score</code> — high score stays on the machine. Obviously.</li>
+            <li><b>Cheat codes.</b> Disabled at the AppArmor layer. We are not a Nintendo subsidiary.</li>
+          </ul>
+        </div>
+        <div class="art cyber-art">
+          <img src="img/frontiers-ruins.jpg" alt="Floating ancient ruins over water">
+          <img src="img/frontiers-open.jpg" class="behind" alt="Open world floating islands">
+        </div>
+      </div>
+    </section>
+
+    <section id="press">
+      <h2>What the press is saying.</h2>
+      <p class="lede">We are very normal about this.</p>
+      <div class="quotes">
+        <blockquote>
+          <p>“It's just a hedgehog.”</p>
+          <cite>— Wired, having been informed incorrectly</cite>
+        </blockquote>
+        <blockquote>
+          <p>“We tried to install Gentoo and got beaten up.”</p>
+          <cite>— IGN, after the Werehog segment</cite>
+        </blockquote>
+        <blockquote>
+          <p>“uBlock Origin is the only allowed extension. This is, technically, fascist.”</p>
+          <cite>— The Verge, in a piece that we did not read</cite>
+        </blockquote>
+        <blockquote>
+          <p>“We sent your data to nothing.weforgot. We have always sent your data to nothing.weforgot. The nothing is consistent.”</p>
+          <cite>— SomethingOS Project, blog post #0</cite>
+        </blockquote>
+        <blockquote>
+          <p>“It boots. It is fast. The hedgehog is optional.”</p>
+          <cite>— Phoronix, after a benchmark</cite>
+        </blockquote>
+        <blockquote>
+          <p>“The hedgehog is not optional.”</p>
+          <cite>— the hedgehog, in our DMs</cite>
+        </blockquote>
+      </div>
+    </section>
+
+    <section id="specs">
+      <h2>Specs.</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>General</h3>
+          <dl>
+            <dt>Based on</dt><dd>Debian 12 bookworm</dd>
+            <dt>Default session</dt><dd>GNOME Shadow (Unleashed edition)</dd>
+            <dt>Alt session</dt><dd>Plasma Shadow</dd>
+            <dt>Kernel</dt><dd><code>linux-image-amd64</code></dd>
+            <dt>Init</dt><dd>systemd, hardened</dd>
+            <dt>License</dt><dd>GPL-3.0-or-later</dd>
+            <dt>Two-hedgehog doctrine</dt><dd>compliant</dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h3>Day mode</h3>
+          <dl>
+            <dt>Shell</dt><dd>GNOME 43 + dash-to-dock + dash-to-panel</dd>
+            <dt>Terminal</dt><dd>GNOME Terminal, IBM Plex Mono, cyan</dd>
+            <dt>Browser</dt><dd>Firefox ESR (Unleashed build)</dd>
+            <dt>Default search</dt><dd>DuckDuckGo → Mojeek → Brave → SearXNG</dd>
+            <dt>Tank controls</dt><dd>no</dd>
+            <dt>Spindash</dt><dd>requires <code>something unlock</code></dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h3>Night mode</h3>
+          <dl>
+            <dt>AppArmor profile</dt><dd><code>werehog-strict</code></dd>
+            <dt>ptrace_scope</dt><dd>3</dd>
+            <dt>MAC randomisation</dt><dd>every boot, every ring</dd>
+            <dt>Telemetry</dt><dd>0.0.0.0</dd>
+            <dt>Phone home</dt><dd>no</dd>
+            <dt>Lives lost</dt><dd>0</dd>
+            <dt>Rings collected</dt><dd>your rings, your problem</dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h3>Cyber Space</h3>
+          <dl>
+            <dt>Hypervisor</dt><dd>QEMU/KVM</dd>
+            <dt>Guest root</dt><dd>virtio-blk</dd>
+            <dt>Shared folder</dt><dd>9p, 64 KiB mtu</dd>
+            <dt>Network by default</dt><dd>none</dd>
+            <dt>Snapshotting</dt><dd>internal, libvirt</dd>
+            <dt>Frame budget</dt><dd>16.67 ms, ish</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section id="download" class="dl-band">
+      <div class="band-inner">
+        <div class="text">
+          <h2>Download. <em>for free.</em></h2>
+          <p class="lede">
+            Pick a flavour. Both are live, installable, bootable from a USB.
+            Hashes are below. The .torrent is going to be up eventually. We
+            apologise for the music. We do not apologise for the hedgehog.
+          </p>
+
+          <div class="dl-grid">
+            <a class="dl-card" href="https://github.com/Guest453/somethingos/actions/workflows/iso.yml">
+              <div class="dl-head">
+                <span class="tag">iso · gnome</span>
+                <span class="size">~ 1.6 GiB</span>
+              </div>
+              <h3>SomethingOS Unleashed · GNOME</h3>
+              <p>Day mode default, night mode automatic, cyber space optional.</p>
+              <span class="go">gh run download →</span>
+            </a>
+
+            <a class="dl-card" href="https://github.com/Guest453/somethingos/actions/workflows/iso.yml">
+              <div class="dl-head">
+                <span class="tag">iso · plasma</span>
+                <span class="size">~ 1.7 GiB</span>
+              </div>
+              <h3>SomethingOS Unleashed · Plasma</h3>
+              <p>Breeze Dark, cyan accent, the same hedgehog energy, fewer round corners.</p>
+              <span class="go">gh run download →</span>
+            </a>
+
+            <a class="dl-card" href="https://github.com/Guest453/somethingos/actions/workflows/iso.yml">
+              <div class="dl-head">
+                <span class="tag">source</span>
+                <span class="size">~ 25 MiB</span>
+              </div>
+              <h3>Build it yourself</h3>
+              <p><code>make iso</code> on Debian, or <code>make iso-container</code> on Fedora. live-build stays inside a Debian bookworm container, where it belongs.</p>
+              <span class="go">view the makefile →</span>
+            </a>
+          </div>
+
+          <pre><span class="c"># verify the download</span>
+sha256sum somethingos-2.0-unleashed-shadow-gnome-amd64.iso
+gpg --verify somethingos-2.0-unleashed-shadow-gnome-amd64.iso.sig  <span class="c"># trust the hedgehog</span>
+dd if=somethingos-2.0-unleashed-shadow-gnome-amd64.iso of=/dev/sdX bs=4M status=progress conv=fdatasync
+sync</pre>
+        </div>
+
+        <aside class="dl-aside">
+          <h4>System requirements</h4>
+          <ul>
+            <li>2 GiB RAM (4 GiB for Cyber Space)</li>
+            <li>15 GiB disk</li>
+            <li>x86_64 CPU with VT-x or AMD-V</li>
+            <li>USB 3.x port (USB 2 works, we do not recommend it)</li>
+            <li>Acceptance that you are now a hedgehog person</li>
+          </ul>
+          <h4>What's in the box</h4>
+          <ul>
+            <li>Live session, persistent or not</li>
+            <li>Calamares installer, branded</li>
+            <li><code>something</code> CLI (status, harden, fetch, sonic, cyber, ring)</li>
+            <li>uBlock Origin, system-wide, locked</li>
+            <li>Two colours: cyan and darker cyan</li>
+          </ul>
+          <h4>What's not in the box</h4>
+          <ul>
+            <li>Telemetry</li>
+            <li>DRM</li>
+            <li>Online connectivity check (we lied about that one)</li>
+            <li>A second hedgehog. We have a doctrine about that.</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section class="legal">
+      <h2>Important legal-ish text.</h2>
+      <p>
+        <strong>Two-hedgehog doctrine.</strong> SomethingOS Unleashed
+        acknowledges that the canonical SomethingOS already had a hedgehog.
+        Adding a second hedgehog would constitute a <em>doctrinal
+        violation</em>. This release therefore operates under a special
+        <em>same-hedgehog, different-altitude</em> dispensation. Sonic is the
+        same Sonic. He is just in more places. The doctrine remains intact.
+        Nothing was compromised. We are fine.
+      </p>
+      <p>
+        <strong>SEGA™ and Sonic the Hedgehog™ are trademarks of SEGA Corporation.</strong>
+        SomethingOS Unleashed is not affiliated with, endorsed by, or licensed by SEGA.
+        No game files, ROMs, soundtracks, or jingles are included. The hedgehog
+        in the wallpaper is a separate open-source hedgehog. He came with the
+        GNOME theme. We did not add him. He was always there.
+      </p>
+      <p>
+        <strong>Privacy.</strong> We send your data to
+        <code>nothing.weforgot</code>. That hostname resolves to
+        <code>0.0.0.0</code>. The <code>/v1/sink</code> path is a 404. The
+        server does not exist. The data is gone. We are not a data controller.
+        We are not a data processor. We are not, in any meaningful sense, here.
+      </p>
+      <p class="small">
+        SomethingOS 2.0 Unleashed · codename Shadow · based on Debian 12 bookworm ·
+        GPL-3.0-or-later · a joke, but also a real ISO ·
+        not affiliated with SEGA, Debian, or any hedgehog in particular.
+      </p>
+    </section>
+
+    <footer>
+      <a href="../">back to somethingos</a> ·
+      <a href="../session/">enter the live session</a> ·
+      <a href="https://github.com/Guest453/somethingos">source</a>
+    </footer>
+  </div>
+
+  <script>
+    // light touch: the rings drift
+    (function () {
+      const rings = document.querySelectorAll('.rings span');
+      rings.forEach((r, i) => {
+        r.style.animationDelay = (i * 0.27) + 's';
+        r.style.left = (10 + i * 9) + '%';
+      });
+    })();
+  </script>
+</body>
+</html>

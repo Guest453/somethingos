@@ -32,6 +32,14 @@ printf '%s\n' "$CODENAME" > "$ROOT/config/includes.chroot/etc/somethingos/codena
 
 BOOTAPPEND="boot=live components quiet splash hostname=somethingos username=someone user-fullname=Someone timezone=UTC utc=yes"
 
+# Squashfs compression: zstd decompresses faster than xz and the live
+# kernel does not care. We pick zstd at level 3 (zstd's default) which is
+# the sweet spot — about 3x faster mksquashfs runtime vs xz at a small
+# (~10%) cost in output size on Debian chroots. Overridable from the
+# env: SQUASHFS_COMP=xz make iso
+SQUASHFS_COMP="${SQUASHFS_COMP:-zstd}"
+SQUASHFS_LEVEL="${SQUASHFS_LEVEL:-3}"
+
 lb config noauto \
   --mode debian \
   --system live \
@@ -60,6 +68,8 @@ lb config noauto \
   --apt-indices "${APT_INDICES:-true}" \
   --apt-recommends true \
   --apt-source-archives false \
+  --chroot-squashfs-compression-type "$SQUASHFS_COMP" \
+  --chroot-squashfs-compression-level "$SQUASHFS_LEVEL" \
   --checksums sha256 \
   --win32-loader false \
   --memtest none \

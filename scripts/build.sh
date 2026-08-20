@@ -32,6 +32,17 @@ need_bin debootstrap
 need_bin mksquashfs
 need_bin xorriso
 
+# Install the fast mksquashfs wrapper in front of the real binary.
+# `lb build` calls mksquashfs from the host's PATH; we shadow it with
+# a wrapper that adds -no-xattrs -no-exports -no-recovery -no-progress
+# and a sane -mem cap. Huge speedup on GNOME/Plasma chroots.
+FAST_DIR="$(mktemp -d -t somethingos-mksquashfs.XXXXXX)"
+trap 'rm -rf "${FAST_DIR}"' EXIT
+install -m 0755 "$ROOT/scripts/mksquashfs-fast.sh" "$FAST_DIR/mksquashfs"
+export PATH="$FAST_DIR:$PATH"
+echo "==> mksquashfs wrapper: $FAST_DIR/mksquashfs -> $(command -v mksquashfs)"
+mksquashfs -version 2>/dev/null | head -1 || true
+
 export DESKTOP ARCH VERSION CODENAME
 bash "$ROOT/scripts/stage-branding.sh"
 lb clean --all || true
