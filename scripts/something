@@ -1,0 +1,276 @@
+#!/usr/bin/env bash
+# something — SomethingOS control surface
+# Shipped to /usr/bin/something on the live system and usable from this tree.
+set -euo pipefail
+
+VERSION_FILE="/etc/somethingos/version"
+CODENAME_FILE="/etc/somethingos/codename"
+DESKTOP_FILE="/etc/somethingos/desktop"
+
+# Running from the git tree during development
+if [[ ! -f "$VERSION_FILE" ]]; then
+  ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
+  VERSION_FILE="$ROOT/VERSION"
+  CODENAME_FILE="/dev/null"
+fi
+
+VERSION="$(cat "$VERSION_FILE" 2>/dev/null || echo 1.0.0)"
+CODENAME="$(cat "$CODENAME_FILE" 2>/dev/null || echo shadow)"
+DESKTOP="$(cat "$DESKTOP_FILE" 2>/dev/null || echo gnome)"
+
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  C=$'\033[38;2;62;224;197m'
+  D=$'\033[2m'
+  R=$'\033[0m'
+  G=$'\033[32m'
+  Y=$'\033[33m'
+  X=$'\033[31m'
+else
+  C= D= R= G= Y= X=
+fi
+
+say()  { printf '%s\n' "$*"; }
+ok()   { printf '  %s✓%s  %-28s %s%s%s\n' "$G" "$R" "$1" "$D" "$2" "$R"; }
+warn() { printf '  %s!%s  %-28s %s%s%s\n' "$Y" "$R" "$1" "$D" "$2" "$R"; }
+bad()  { printf '  %s✗%s  %-28s %s%s%s\n' "$X" "$R" "$1" "$D" "$2" "$R"; }
+
+sysctl_is() {
+  local key="$1" want="$2"
+  local got
+  got="$(sysctl -n "$key" 2>/dev/null || echo missing)"
+  [[ "$got" == "$want" ]]
+}
+
+svc_on() {
+  systemctl is-enabled "$1" >/dev/null 2>&1 || systemctl is-active "$1" >/dev/null 2>&1
+}
+
+cmd_about() {
+  cat <<EOF
+${C}somethingos${R} ${VERSION} ${D}(${CODENAME})${R}
+
+  A hardened Debian GNU/Linux remix.
+  Desktop flavour : ${DESKTOP}
+  Opsec level     : INFINITE
+  Upstream        : Debian 12 (bookworm)
+
+  something status      hardening posture
+  something harden      re-apply defaults (root)
+  something update      pull Debian security
+  something fetch       neofetch with the SomethingOS mark
+  something desktop     show / switch flavour info
+  something vpn         WireGuard / OpenVPN
+  something telemetry   we send your data to nothing.weforgot
+  something sonic       random hedgehog
+  something game        Ring Rush
+  something about       this page
+EOF
+}
+
+cmd_fetch() {
+  if command -v neofetch >/dev/null 2>&1; then
+    neofetch
+  else
+    say "${C}somethingos${R} ${VERSION} ${CODENAME} · Debian bookworm · ${DESKTOP}"
+    say "neofetch is not installed in this environment"
+  fi
+}
+
+cmd_desktop() {
+  say "current flavour: ${C}${DESKTOP}${R}"
+  say
+  say "SomethingOS ships two first-class sessions:"
+  say "  ${C}gnome${R}    Shadow session — GNOME + dash-to-dock (default)"
+  say "  ${C}plasma${R}   Shadow session — Plasma, Breeze Dark, cyan accent"
+  say
+  say "Rebuild the ISO to switch:"
+  say "  make iso DESKTOP=gnome"
+  say "  make iso DESKTOP=plasma"
+  if [[ -d /usr/share/xsessions || -d /usr/share/wayland-sessions ]]; then
+    say
+    say "sessions installed on this system:"
+    ls /usr/share/wayland-sessions/*.desktop /usr/share/xsessions/*.desktop 2>/dev/null \
+      | sed 's|.*/||;s|\.desktop$||;s|^|  |' || true
+  fi
+}
+
+cmd_status() {
+  printf '%s\n' "${C}somethingos${R} ${VERSION} ${D}${CODENAME}${R}  posture"
+  echo
+  local hard=0 soft=0
+
+  if sysctl_is kernel.kptr_restrict 2; then ok "kptr_restrict" "2"; else bad "kptr_restrict" "expected 2"; hard=1; fi
+  if sysctl_is kernel.dmesg_restrict 1; then ok "dmesg_restrict" "1"; else bad "dmesg_restrict" "expected 1"; hard=1; fi
+  if sysctl_is kernel.yama.ptrace_scope 2; then ok "ptrace_scope" "2"; else warn "ptrace_scope" "expected 2"; soft=1; fi
+  if sysctl_is kernel.unprivileged_bpf_disabled 1; then ok "unpriv bpf" "disabled"; else warn "unpriv bpf" "not disabled"; soft=1; fi
+  if sysctl_is vm.swappiness 10; then ok "swappiness" "10"; else warn "swappiness" "$(sysctl -n vm.swappiness 2>/dev/null || echo n/a)"; soft=1; fi
+
+  if command -v aa-status >/dev/null 2>&1 && aa-status --enabled >/dev/null 2>&1; then
+    ok "apparmor" "enforcing"
+  else
+    warn "apparmor" "not enforcing"
+    soft=1
+  fi
+
+  if command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | grep -qi 'Status: active'; then
+    ok "firewall" "ufw active"
+  else
+    warn "firewall" "ufw inactive"
+    soft=1
+  fi
+
+  if svc_on unattended-upgrades; then ok "auto updates" "unattended-upgrades"; else warn "auto updates" "off"; soft=1; fi
+  if svc_on apparmor; then ok "apparmor unit" "enabled"; else warn "apparmor unit" "off"; soft=1; fi
+  if svc_on chrony || svc_on systemd-timesyncd; then ok "time sync" "on"; else warn "time sync" "off"; soft=1; fi
+
+  if [[ -f /etc/firefox-esr/policies/policies.json || -f /etc/firefox/policies/policies.json ]]; then
+    ok "firefox policies" "telemetry → nothing.weforgot"
+  else
+    warn "firefox policies" "not installed"
+    soft=1
+  fi
+  if grep -q 'nothing.weforgot' /etc/hosts 2>/dev/null; then
+    ok "telemetry sink" "nothing.weforgot"
+  else
+    warn "telemetry sink" "hosts not patched (ok on build host)"
+    soft=1
+  fi
+  if dpkg -l 'webext-ublock-origin-firefox' 2>/dev/null | grep -q '^ii'; then
+    ok "ublock origin" "system extension"
+  else
+    warn "ublock origin" "package not on this host"
+    soft=1
+  fi
+
+  echo
+  if [[ "$hard" -eq 0 && "$soft" -eq 0 ]]; then
+    say "overall  ${G}hardened${R}"
+  elif [[ "$hard" -eq 0 ]]; then
+    say "overall  ${Y}mostly hardened${R}  (run: sudo something harden)"
+  else
+    say "overall  ${X}soft${R}  (run: sudo something harden)"
+  fi
+}
+
+cmd_harden() {
+  if [[ "${EUID}" -ne 0 ]]; then
+    say "harden needs root  →  sudo something harden"
+    exit 1
+  fi
+  say "re-applying SomethingOS defaults…"
+  if [[ -f /etc/sysctl.d/99-somethingos.conf ]]; then
+    sysctl --system >/dev/null 2>&1 || sysctl -p /etc/sysctl.d/99-somethingos.conf || true
+  fi
+  if command -v ufw >/dev/null 2>&1; then
+    ufw --force reset >/dev/null
+    ufw default deny incoming
+    ufw default allow outgoing
+    ufw --force enable
+  fi
+  systemctl enable --now apparmor 2>/dev/null || true
+  systemctl enable --now unattended-upgrades 2>/dev/null || true
+  systemctl enable --now chrony 2>/dev/null || true
+  say "${G}done${R}  something status"
+  cmd_status
+}
+
+cmd_telemetry() {
+  say "${C}telemetry${R}"
+  say
+  say "  We send your data to ${C}nothing.weforgot${R}."
+  say "  That name is ${D}0.0.0.0${R} in /etc/hosts."
+  say "  Firefox toolkit.telemetry.server is locked to"
+  say "  ${D}https://nothing.weforgot/v1/sink${R}"
+  say "  uBlock Origin is force-installed."
+  say "  popularity-contest is not installed."
+  echo
+  if grep -q 'nothing.weforgot' /etc/hosts 2>/dev/null; then
+    ok "sinkhole" "nothing.weforgot → 0.0.0.0"
+  else
+    warn "sinkhole" "hosts entry missing (live ISO applies it)"
+  fi
+  if [[ -f /etc/firefox-esr/policies/policies.json ]]; then
+    if grep -q 'nothing.weforgot' /etc/firefox-esr/policies/policies.json; then
+      ok "firefox sink" "locked"
+    else
+      warn "firefox sink" "policy present, sink string missing"
+    fi
+  fi
+}
+
+cmd_vpn() {
+  local helper="/usr/bin/something-vpn"
+  if [[ ! -x "$helper" ]]; then
+    ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
+    helper="$ROOT/config/includes.chroot/usr/bin/something-vpn"
+  fi
+  if [[ -x "$helper" ]]; then
+    shift || true
+    exec bash "$helper" "${@}"
+  fi
+  say "vpn helper missing"
+  exit 1
+}
+
+cmd_sonic() {
+  local dir=""
+  for cand in \
+    /usr/share/backgrounds/somethingos/sonic \
+    "$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)/branding/sonic" \
+    "$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)/website/assets/sonic"
+  do
+    if [[ -d "$cand" ]]; then dir="$cand"; break; fi
+  done
+  if [[ -z "$dir" ]]; then say "no hedgehog archive"; exit 1; fi
+  mapfile -t pics < <(find "$dir" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.webp' \) | sort)
+  if [[ "${#pics[@]}" -eq 0 ]]; then say "no hedgehog archive"; exit 1; fi
+  local pick="${pics[RANDOM % ${#pics[@]}]}"
+  say "${C}sonic${R}  ${D}${pick}${R}"
+  if command -v xdg-open >/dev/null 2>&1 && [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
+    xdg-open "$pick" >/dev/null 2>&1 || true
+  fi
+}
+
+cmd_game() {
+  local game="/usr/share/somethingos/ring-rush/index.html"
+  if [[ ! -f "$game" ]]; then
+    ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
+    game="$ROOT/website/game/index.html"
+  fi
+  if command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "$game"
+  else
+    say "open $game"
+  fi
+}
+
+cmd_update() {
+  if [[ "${EUID}" -ne 0 ]]; then
+    say "update needs root  →  sudo something update"
+    exit 1
+  fi
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update
+  apt-get -y upgrade
+  apt-get -y autoremove --purge
+  say "${G}done${R}"
+}
+
+usage() {
+  say "usage: something [status|harden|update|fetch|desktop|vpn|telemetry|sonic|game|about|help]"
+}
+
+case "${1:-status}" in
+  status)  cmd_status ;;
+  harden)  cmd_harden ;;
+  update)  cmd_update ;;
+  fetch|neofetch) cmd_fetch ;;
+  desktop|de|session) cmd_desktop ;;
+  vpn) cmd_vpn "$@" ;;
+  telemetry|nothing|privacy) cmd_telemetry ;;
+  sonic|hedgehog) cmd_sonic ;;
+  game|rings|rush) cmd_game ;;
+  about|version|--version|-V) cmd_about ;;
+  help|-h|--help) usage; echo; cmd_about ;;
+  *) say "unknown command: $1"; usage; exit 2 ;;
+esac

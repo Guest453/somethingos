@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=SomethingOS
+Description=SomethingOS Shadow splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/somethingos
+ScriptFile=/usr/share/plymouth/themes/somethingos/somethingos.script

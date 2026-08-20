@@ -1,0 +1,75 @@
+# SomethingOS Shadow — GNOME
+# This is the default session. Dark Adwaita, dash-to-dock, cyan accent.
+
+gnome-core
+gnome-session
+gnome-shell
+gnome-shell-extensions
+gnome-shell-extension-dashtodock
+gnome-shell-extension-appindicator
+gnome-shell-extension-prefs
+gnome-tweaks
+gnome-control-center
+gnome-settings-daemon
+gnome-terminal
+gnome-software
+gnome-software-plugin-flatpak
+gnome-disk-utility
+gnome-system-monitor
+gnome-calculator
+gnome-characters
+gnome-clocks
+gnome-font-viewer
+gnome-logs
+gnome-screenshot
+gnome-sushi
+nautilus
+evince
+eog
+file-roller
+gedit
+baobab
+seahorse
+yelp
+gdm3
+dbus-user-session
+xdg-desktop-portal
+xdg-desktop-portal-gnome
+xdg-user-dirs
+xdg-user-dirs-gtk
+xdg-utils
+
+# media
+pipewire
+pipewire-pulse
+pipewire-audio
+wireplumber
+libspa-0.2-bluetooth
+gstreamer1.0-pipewire
+pavucontrol
+
+# look
+fonts-inter
+fonts-jetbrains-mono
+fonts-noto-core
+fonts-noto-color-emoji
+papirus-icon-theme
+adwaita-icon-theme
+gnome-backgrounds
+yaru-theme-gtk
+yaru-theme-icon
+yaru-theme-gnome-shell
+
+# apps
+firefox-esr
+webext-ublock-origin-firefox
+keepassxc
+flatpak
+fwupd
+gparted
+gnome-firmware
+aisleriot
+gnome-2048
+
+# calamares Qt bits still needed
+qtwayland5

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SomethingOS — Debian, with the lights off</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site.css">
+  <link rel="icon" href="assets/logo.png">
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="./">something<span>os</span></a>
+      <ul>
+        <li><a href="#flavours">flavours</a></li>
+        <li><a href="#privacy">nothing.weforgot</a></li>
+        <li><a href="#build">build</a></li>
+        <li><a href="session/">session</a></li>
+      </ul>
+    </nav>
+
+    <header class="hero">
+      <div class="stamp">Debian 12 bookworm · opsec level infinite</div>
+      <h1>A real OS.<br>Not XFCE.<br><em>Shadow</em> session.</h1>
+      <p class="lede">
+        SomethingOS is a live, installable remix of Debian GNU/Linux.
+        GNOME Shadow is the default desktop. Plasma Shadow is the other official flavour.
+        We send your data to <code>nothing.weforgot</code>.
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="session/">Enter GNOME Shadow</a>
+        <a class="btn" href="game/">Play Ring Rush</a>
+        <a class="btn" href="#build">Build the ISO</a>
+      </div>
+      <figure class="shot">
+        <img src="assets/desktop.png" alt="SomethingOS GNOME Shadow desktop">
+      </figure>
+    </header>
+
+    <section id="flavours">
+      <h2>Two sessions. Zero XFCE.</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>GNOME Shadow — default</h3>
+          <p>GNOME 43, Adwaita dark, Inter, dash-to-dock, cyan cursor. The desktop in the screenshot and in the live session.</p>
+        </article>
+        <article class="card">
+          <h3>Plasma Shadow — option</h3>
+          <p><code>make iso DESKTOP=plasma</code>. Breeze Dark, same wallpaper, same cyan, same hardening. First-class, not a community spin.</p>
+        </article>
+        <article class="card">
+          <h3>neofetch, first prompt</h3>
+          <p>Custom mark, JetBrains Mono, the <code>something</code> CLI. <code>something fetch</code> if you want it again.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="privacy">
+      <h2>We send your data to nothing.weforgot</h2>
+      <p class="lede">
+        That hostname is <code>0.0.0.0</code> in <code>/etc/hosts</code>.
+        Firefox’s telemetry server pref is locked to
+        <code>https://nothing.weforgot/v1/sink</code>.
+        uBlock Origin is force-installed. A WireGuard / OpenVPN stack ships on the ISO.
+        Popularity-contest does not.
+      </p>
+      <div class="grid" style="margin-top:28px">
+        <article class="card"><h3>uBlock Origin</h3><p>Debian package <code>webext-ublock-origin-firefox</code> plus a locked Firefox policy. You can add filters. You cannot “accidentally” lose it.</p></article>
+        <article class="card"><h3>VPN</h3><p>WireGuard, OpenVPN, and the NetworkManager plugins. <code>something vpn up</code> when you drop a conf in <code>/etc/wireguard/</code>.</p></article>
+        <article class="card"><h3>Ring Rush</h3><p>A hedgehog, some rings, dirt if you miss. High scores stay on the machine. Obviously.</p></article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Random Sonic, on purpose.</h2>
+      <p class="lede">They live in <code>~/Pictures/sonic</code>. <code>something sonic</code> opens one at random. The live session also just… puts them on the wallpaper.</p>
+      <div class="sonic-row" style="margin-top:24px">
+        <img src="assets/sonic/run.webp" alt="Sonic running">
+        <img src="assets/sonic/run-art.webp" alt="Sonic painted run">
+        <img src="assets/sonic/point.png" alt="Sonic pointing">
+        <img src="assets/sonic/poses.jpg" alt="Sonic poses">
+        <img src="assets/sonic/greenhill.jpg" alt="Green Hill">
+        <img src="assets/sonic/run-alt.webp" alt="Sonic run alt">
+      </div>
+    </section>
+
+    <section id="build">
+      <h2>Build a USB you can boot.</h2>
+      <p class="lede">Debian host. live-build. Root, because debootstrap. About twelve gigabytes free.</p>
+      <pre><span class="c">sudo apt-get install</span> live-build debootstrap squashfs-tools xorriso isolinux
+<span class="c">make iso</span>                 # GNOME Shadow
+<span class="c">make iso DESKTOP=plasma</span>  # Plasma Shadow
+<span class="c">sudo cp</span> somethingos-1.0.0-shadow-gnome-amd64.iso /dev/sdX</pre>
+    </section>
+
+    <footer>
+      SomethingOS 1.0 Shadow · Debian remix · GPL-3.0-or-later · not affiliated with Debian or SEGA ·
+      we send your data to nothing.weforgot
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+---
+componentName: somethingos
+welcomeStyleCalamares: true
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 900px,620px
+windowPlacement: center
+
+strings:
+    productName:         SomethingOS
+    shortProductName:    SomethingOS
+    version:             1.0
+    shortVersion:        1.0
+    versionedName:       SomethingOS 1.0 Shadow
+    shortVersionedName:  SomethingOS 1.0
+    bootloaderEntryName: SomethingOS
+    productUrl:          https://somethingos.dev
+    supportUrl:          https://somethingos.dev/docs
+    knownIssuesUrl:      https://somethingos.dev/issues
+    releaseNotesUrl:     https://somethingos.dev
+    donateUrl:           https://www.debian.org/donations
+
+images:
+    productLogo:         "logo.png"
+    productIcon:         "logo.png"
+    productWelcome:      "welcome.png"
+
+slideshow:               "show.qml"
+
+style:
+   sidebarBackground:    "#0c0e12"
+   sidebarText:          "#e8eaed"
+   sidebarTextSelect:    "#0c0e12"
+   sidebarTextHighlight: "#3ee0c5"

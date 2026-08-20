@@ -1,0 +1,21 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%;
+  background: #07080b;
+  color: #e8eaed;
+  font: 14px/1.4 "IBM Plex Sans", Inter, sans-serif;
+}
+#wrap { max-width: 960px; margin: 0 auto; padding: 16px; }
+header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.mark { color: #3ee0c5; letter-spacing: 0.22em; font-size: 11px; }
+#hud { font-family: "IBM Plex Mono", ui-monospace, monospace; color: #b4b8bf; }
+canvas {
+  display: block; width: 100%; height: auto;
+  background: #0b1014;
+  border: 1px solid #1c222b;
+  border-radius: 12px;
+  image-rendering: pixelated;
+  cursor: pointer;
+}
+.hint { color: #6b7280; font-size: 12px; }

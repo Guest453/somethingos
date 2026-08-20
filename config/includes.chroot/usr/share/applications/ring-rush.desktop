@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ring Rush
+Comment=SomethingOS hedgehog runner
+Exec=xdg-open /usr/share/somethingos/ring-rush/index.html
+Icon=applications-games
+Terminal=false
+Categories=Game;ArcadeGame;
+StartupNotify=true

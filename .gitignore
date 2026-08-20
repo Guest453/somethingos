@@ -1,0 +1,47 @@
+# live-build artefacts
+/.build/
+/cache/
+/chroot/
+/binary/
+/binary.iso
+/binary.hybrid.iso
+/binary.img
+/live-image-*.iso
+/live-image-*.img
+/live-image-*.contents
+/live-image-*.packages
+/live-image-*.files
+/live-image-*.log
+/*.iso
+/*.img
+/build.log
+/config/bootstrap
+/config/binary
+/config/bootstrap
+/config/chroot
+/config/common
+/config/source
+/config/includes.chroot/usr/share/backgrounds/somethingos/shadow.png
+/config/includes.chroot/usr/share/pixmaps/somethingos.png
+/config/includes.chroot/usr/share/icons/hicolor/512x512/apps/somethingos.png
+/config/includes.binary/isolinux/splash.png
+/config/bootloaders/grub-pc/splash.png
+
+# package build
+/packages/**/debian/.debhelper/
+/packages/**/debian/debhelper-build-stamp
+/packages/**/debian/files
+/packages/**/debian/*.substvars
+/packages/**/debian/*.debhelper.log
+/packages/**/*.deb
+/packages/**/*.build
+/packages/**/*.buildinfo
+/packages/**/*.changes
+
+# local
+/.venv/
+/node_modules/
+*.swp
+.DS_Store
+
+/image-search/

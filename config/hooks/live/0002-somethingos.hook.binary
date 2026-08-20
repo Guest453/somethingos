@@ -1,0 +1,17 @@
+#!/bin/bash
+# Stamp the ISO volume label and isolinux menu titles.
+set -euo pipefail
+
+echo "I: SomethingOS binary hook"
+
+if [[ -f isolinux/menu.cfg ]]; then
+  sed -i 's/Debian GNU\/Linux/SomethingOS/g' isolinux/menu.cfg || true
+fi
+if [[ -f isolinux/stdmenu.cfg ]]; then
+  sed -i 's/Debian GNU\/Linux/SomethingOS/g' isolinux/stdmenu.cfg || true
+fi
+if [[ -f boot/grub/grub.cfg ]]; then
+  sed -i 's/Debian GNU\/Linux/SomethingOS/g' boot/grub/grub.cfg || true
+fi
+
+echo "I: SomethingOS binary hook finished"
