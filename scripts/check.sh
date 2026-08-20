@@ -21,8 +21,8 @@ for f in \
   config/package-lists/desktop-plasma.list \
   config/hooks/live/0001-somethingos.hook.chroot \
   scripts/ci-debian.sh \
-  ci/github/iso.yml \
-  ci/github/check.yml \
+  .github/workflows/iso.yml \
+  .github/workflows/check.yml \
   config/includes.chroot/etc/os-release \
   config/includes.chroot/etc/skel/.config/neofetch/config.conf \
   branding/logo.png branding/wallpaper.png branding/grub.png \
