@@ -1,0 +1,136 @@
+#!/bin/bash
+# SomethingOS chroot hook — identity, defaults, services.
+set -euo pipefail
+
+echo "I: SomethingOS chroot hook"
+
+export DEBIAN_FRONTEND=noninteractive
+
+# Locale. Live session is US/UTF-8; installer can change it.
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+locale-gen
+update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+
+# Identity files that Debian tools rewrite — pin them again.
+if [[ -f /usr/share/somethingos/os-release ]]; then
+  install -m 0644 /usr/share/somethingos/os-release /etc/os-release
+  install -m 0644 /usr/share/somethingos/os-release /usr/lib/os-release
+fi
+
+# Default user groups live-config will honour.
+mkdir -p /etc/live
+cat > /etc/live/config.conf <<'EOF'
+LIVE_HOSTNAME="somethingos"
+LIVE_USERNAME="someone"
+LIVE_USER_FULLNAME="Someone"
+LIVE_USER_DEFAULT_GROUPS="audio cdrom dip floppy video plugdev netdev scanner bluetooth sudo lpadmin"
+LIVE_UTC="yes"
+LIVE_TIMEZONE="UTC"
+LIVE_KEYBOARD_LAYOUTS="us"
+LIVE_NOCONFIGS=""
+EOF
+
+# systemd default is graphical when a display manager is present
+if [[ -x /usr/sbin/gdm3 || -x /usr/bin/sddm ]]; then
+  systemctl set-default graphical.target || true
+fi
+
+# Enable hardening units. Failures are non-fatal inside debootstrap edge cases.
+for unit in apparmor ufw unattended-upgrades chrony jitterentropy-rngd auditd; do
+  systemctl enable "$unit" 2>/dev/null || true
+done
+
+if command -v ufw >/dev/null 2>&1; then
+  ufw --force reset >/dev/null 2>&1 || true
+  ufw default deny incoming || true
+  ufw default allow outgoing || true
+  echo y | ufw enable || true
+fi
+
+# Plymouth
+if [[ -d /usr/share/plymouth/themes/somethingos ]]; then
+  if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+    plymouth-set-default-theme somethingos || true
+  fi
+fi
+
+# dconf defaults (GNOME flavour)
+if command -v dconf >/dev/null 2>&1; then
+  dconf update || true
+fi
+if command -v glib-compile-schemas >/dev/null 2>&1; then
+  glib-compile-schemas /usr/share/glib-2.0/schemas || true
+fi
+
+# GDM: dark session, SomethingOS wallpaper
+if [[ -d /etc/gdm3 ]]; then
+  mkdir -p /etc/dconf/db/gdm.d
+  cat > /etc/dconf/db/gdm.d/00-somethingos <<'EOF'
+[org/gnome/desktop/interface]
+color-scheme='prefer-dark'
+gtk-theme='Adwaita-dark'
+
+[org/gnome/desktop/background]
+picture-uri='file:///usr/share/backgrounds/somethingos/shadow.png'
+picture-uri-dark='file:///usr/share/backgrounds/somethingos/shadow.png'
+picture-options='zoom'
+primary-color='#07080b'
+EOF
+  mkdir -p /etc/dconf/profile
+  if [[ ! -f /etc/dconf/profile/gdm ]]; then
+    printf '%s\n' 'user-db:user' 'system-db:gdm' > /etc/dconf/profile/gdm
+  fi
+  dconf update || true
+fi
+
+# SDDM (Plasma flavour)
+if [[ -d /etc/sddm.conf.d ]]; then
+  cat > /etc/sddm.conf.d/somethingos.conf <<'EOF'
+[Theme]
+Current=breeze
+CursorTheme=breeze_cursors
+
+[General]
+InputMethod=
+EOF
+fi
+
+# Disable noisy Debian motd scripts we replace
+chmod -x /etc/update-motd.d/* 2>/dev/null || true
+
+# firefox policies live in /etc/firefox-esr
+mkdir -p /etc/firefox-esr/policies /etc/firefox/policies
+if [[ -f /usr/share/somethingos/firefox-policies.json ]]; then
+  install -m 0644 /usr/share/somethingos/firefox-policies.json /etc/firefox-esr/policies/policies.json
+  install -m 0644 /usr/share/somethingos/firefox-policies.json /etc/firefox/policies/policies.json
+fi
+
+# something(1)
+if [[ -f /usr/share/somethingos/something ]]; then
+  install -m 0755 /usr/share/somethingos/something /usr/bin/something
+fi
+
+# First-boot welcome
+if [[ -f /usr/share/somethingos/something-welcome ]]; then
+  install -m 0755 /usr/share/somethingos/something-welcome /usr/bin/something-welcome
+fi
+
+# Telemetry blackhole — we send your data to nothing.weforgot
+if [[ -f /etc/hosts.d/nothing.weforgot ]]; then
+  if ! grep -q 'nothing.weforgot' /etc/hosts 2>/dev/null; then
+    printf '\n' >> /etc/hosts
+    cat /etc/hosts.d/nothing.weforgot >> /etc/hosts
+  fi
+fi
+# popularity-contest must never sneak in
+apt-get -y purge popularity-contest 2>/dev/null || true
+echo 'popularity-contest hold' | dpkg --set-selections 2>/dev/null || true
+
+# Don't ship machine-id into the ISO
+truncate -s 0 /etc/machine-id || true
+rm -f /var/lib/dbus/machine-id || true
+
+# Drop caches of apt lists to keep the squashfs lean-ish
+apt-get clean || true
+
+echo "I: SomethingOS chroot hook finished"

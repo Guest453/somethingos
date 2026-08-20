@@ -1,0 +1,25 @@
+[General]
+ColorScheme=BreezeDark
+Name=SomethingOS Shadow
+fixed=JetBrains Mono,11,-1,5,50,0,0,0,0,0
+font=Inter,11,-1,5,50,0,0,0,0,0
+menuFont=Inter,11,-1,5,50,0,0,0,0,0
+smallestReadableFont=Inter,9,-1,5,50,0,0,0,0,0
+toolBarFont=Inter,10,-1,5,50,0,0,0,0,0
+XftAntialias=true
+XftHintStyle=hintslight
+XftSubPixel=rgb
+
+[KDE]
+LookAndFeelPackage=org.kde.breezedark.desktop
+SingleClick=false
+ColorScheme=BreezeDark
+
+[Icons]
+Theme=Papirus-Dark
+
+[WM]
+activeBackground=17,20,26
+activeForeground=232,234,237
+inactiveBackground=17,20,26
+inactiveForeground=139,145,154

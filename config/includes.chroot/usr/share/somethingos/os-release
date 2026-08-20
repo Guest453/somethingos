@@ -1,0 +1,15 @@
+PRETTY_NAME="SomethingOS 1.0 Shadow"
+NAME="SomethingOS"
+VERSION_ID="1.0"
+VERSION="1.0 (Shadow)"
+VERSION_CODENAME=shadow
+ID=somethingos
+ID_LIKE=debian
+HOME_URL="https://somethingos.dev"
+SUPPORT_URL="https://somethingos.dev/docs"
+BUG_REPORT_URL="https://somethingos.dev/issues"
+PRIVACY_POLICY_URL="https://somethingos.dev/privacy"
+ANSI_COLOR="38;2;62;224;197"
+LOGO=somethingos
+DEBIAN_VERSION="12"
+DEBIAN_CODENAME="bookworm"

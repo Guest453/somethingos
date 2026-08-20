@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=SomethingOS
+Comment=Welcome to SomethingOS Shadow
+Exec=something-welcome
+Icon=somethingos
+Terminal=false
+Categories=System;Utility;
+StartupNotify=true

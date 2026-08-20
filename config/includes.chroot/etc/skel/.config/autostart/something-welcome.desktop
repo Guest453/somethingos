@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=SomethingOS Welcome
+Exec=something-welcome --autostart
+Icon=somethingos
+X-GNOME-Autostart-enabled=true
+X-KDE-autostart-after=panel
+OnlyShowIn=GNOME;KDE;X-Cinnamon;

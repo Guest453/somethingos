@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# something-vpn — thin wrapper around WireGuard + OpenVPN + NetworkManager
+set -euo pipefail
+
+C=$'\033[38;2;62;224;197m'; R=$'\033[0m'; D=$'\033[2m'
+[[ -t 1 ]] || C= R= D=
+
+say() { printf '%s\n' "$*"; }
+
+nm_on() { command -v nmcli >/dev/null 2>&1; }
+
+list_vpn() {
+  if nm_on; then
+    nmcli -t -f NAME,TYPE,ACTIVE connection show | awk -F: '$2 ~ /vpn|wireguard/ {print}'
+  fi
+  if [[ -d /etc/wireguard ]]; then
+    for f in /etc/wireguard/*.conf; do
+      [[ -e "$f" ]] || continue
+      printf 'wg:%s\n' "$(basename "$f" .conf)"
+    done
+  fi
+}
+
+status() {
+  say "${C}something vpn${R}  ${D}data still goes to nothing.weforgot${R}"
+  echo
+  local up=0
+  if ip -brief link 2>/dev/null | grep -Eq 'wg[0-9]|tun[0-9]|tailscale'; then
+    ip -brief link | grep -E 'wg[0-9]|tun[0-9]' || true
+    up=1
+  fi
+  if nm_on; then
+    local active
+    active="$(nmcli -t -f NAME,TYPE,ACTIVE connection show --active | awk -F: '$2 ~ /vpn|wireguard/ && $3=="yes" {print $1}')"
+    if [[ -n "$active" ]]; then
+      say "nm active: $active"
+      up=1
+    fi
+  fi
+  if [[ "$up" -eq 0 ]]; then
+    say "tunnel: ${D}down${R}"
+    say "drop a WireGuard conf in /etc/wireguard/something.conf"
+    say "then: sudo something vpn up something"
+  else
+    say "tunnel: ${C}up${R}"
+  fi
+}
+
+up() {
+  local name="${1:-something}"
+  if [[ "${EUID}" -ne 0 ]]; then say "need root → sudo something vpn up"; exit 1; fi
+  if [[ -f "/etc/wireguard/${name}.conf" ]] && command -v wg-quick >/dev/null; then
+    wg-quick up "$name"
+    return
+  fi
+  if nm_on && nmcli connection show "$name" >/dev/null 2>&1; then
+    nmcli connection up "$name"
+    return
+  fi
+  say "no config named '${name}'"
+  say "put a .conf in /etc/wireguard/ or import with: nmcli connection import type wireguard file foo.conf"
+  exit 1
+}
+
+down() {
+  local name="${1:-something}"
+  if [[ "${EUID}" -ne 0 ]]; then say "need root → sudo something vpn down"; exit 1; fi
+  if command -v wg-quick >/dev/null && [[ -f "/etc/wireguard/${name}.conf" ]]; then
+    wg-quick down "$name" || true
+  fi
+  if nm_on && nmcli connection show "$name" >/dev/null 2>&1; then
+    nmcli connection down "$name" || true
+  fi
+}
+
+import() {
+  local file="${1:-}"
+  [[ -n "$file" && -f "$file" ]] || { say "usage: something vpn import FILE.conf"; exit 2; }
+  if [[ "${EUID}" -ne 0 ]]; then say "need root"; exit 1; fi
+  if command -v nmcli >/dev/null; then
+    nmcli connection import type wireguard file "$file"
+  else
+    install -d /etc/wireguard
+    install -m 0600 "$file" "/etc/wireguard/$(basename "$file")"
+    say "installed /etc/wireguard/$(basename "$file")"
+  fi
+}
+
+case "${1:-status}" in
+  status|st) status ;;
+  list|ls)   list_vpn ;;
+  up)        up "${2:-something}" ;;
+  down)      down "${2:-something}" ;;
+  import)    import "${2:-}" ;;
+  *)         say "usage: something vpn [status|list|up NAME|down NAME|import FILE]"; exit 2 ;;
+esac

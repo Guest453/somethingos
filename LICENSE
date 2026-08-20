@@ -1,0 +1,13 @@
+Copyright (c) 2026 SomethingOS contributors
+
+SomethingOS original work (branding, live-build configuration, hooks,
+the `something` utility, desktop defaults, and documentation) is licensed
+under the GNU General Public License version 3 or later.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+SomethingOS is a remix of Debian GNU/Linux. Debian packages keep their
+own licenses. The Debian trademark is a trademark of Software in the
+Public Interest, Inc. SomethingOS is an independent project and is not
+endorsed by the Debian Project.

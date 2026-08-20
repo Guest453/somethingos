@@ -1,0 +1,33 @@
+# SomethingOS plymouth — dark field, centred mark, quiet progress.
+Window.SetBackgroundTopColor(0.027, 0.031, 0.043);
+Window.SetBackgroundBottomColor(0.027, 0.031, 0.043);
+
+wallpaper.image = Image("background.png");
+ww = Window.GetWidth();
+wh = Window.GetHeight();
+iw = wallpaper.image.GetWidth();
+ih = wallpaper.image.GetHeight();
+scale = Math.Max(ww / iw, wh / ih);
+wallpaper.image = wallpaper.image.Scale(iw * scale, ih * scale);
+wallpaper.sprite = Sprite(wallpaper.image);
+wallpaper.sprite.SetX((ww - wallpaper.image.GetWidth()) / 2);
+wallpaper.sprite.SetY((wh - wallpaper.image.GetHeight()) / 2);
+
+logo.image = Image("logo.png");
+lw = 160;
+lh = logo.image.GetHeight() * (lw / logo.image.GetWidth());
+logo.image = logo.image.Scale(lw, lh);
+logo.sprite = Sprite(logo.image);
+logo.sprite.SetX((ww - lw) / 2);
+logo.sprite.SetY((wh - lh) / 2 - 24);
+logo.sprite.SetOpacity(0.96);
+
+progress = 0;
+bar.w = 160;
+bar.h = 2;
+fun refresh_callback() {
+    progress = progress + 1;
+    if (progress > 160) progress = 0;
+}
+
+Plymouth.SetRefreshFunction(refresh_callback);

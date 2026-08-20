@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+"""SomethingOS first-session welcome. GTK3, no network."""
+import os
+import subprocess
+import sys
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk, Pango
+
+
+CSS = b"""
+window { background: #0c0e12; color: #e8eaed; }
+label { color: #e8eaed; }
+.mark { color: #3ee0c5; }
+.muted { color: #8b919a; }
+button { background: #151920; color: #e8eaed; border: 1px solid #232833; border-radius: 8px; padding: 8px 16px; }
+button:hover { border-color: #3ee0c5; }
+button.suggested-action { background: #3ee0c5; color: #0c0e12; border: none; font-weight: 600; }
+"""
+
+
+def spawn(argv):
+    try:
+        subprocess.Popen(argv, start_new_session=True)
+    except FileNotFoundError:
+        pass
+
+
+class Welcome(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="SomethingOS")
+        self.set_default_size(560, 420)
+        self.set_border_width(32)
+        self.set_position(Gtk.WindowPosition.CENTER)
+        self.connect("destroy", Gtk.main_quit)
+
+        provider = Gtk.CssProvider()
+        provider.load_from_data(CSS)
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        self.add(box)
+
+        kicker = Gtk.Label(label="SOMETHINGOS  1.0  SHADOW")
+        kicker.get_style_context().add_class("mark")
+        kicker.set_xalign(0)
+        box.pack_start(kicker, False, False, 0)
+
+        title = Gtk.Label(label="You are on a live session.")
+        title.set_xalign(0)
+        title.override_font(Pango.FontDescription("Inter 22"))
+        box.pack_start(title, False, False, 0)
+
+        body = Gtk.Label(
+            label=(
+                "This machine is running SomethingOS, a Debian 12 remix.\n"
+                "GNOME Shadow is the default desktop. Plasma Shadow is\n"
+                "the other official flavour. Nothing phones home.\n\n"
+                "Install to disk with Calamares when you are ready.\n"
+                "Until then everything lives in RAM."
+            )
+        )
+        body.set_xalign(0)
+        body.get_style_context().add_class("muted")
+        box.pack_start(body, False, False, 8)
+
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        install = Gtk.Button(label="Install SomethingOS")
+        install.get_style_context().add_class("suggested-action")
+        install.connect("clicked", self.on_install)
+        fetch = Gtk.Button(label="Open terminal")
+        fetch.connect("clicked", self.on_term)
+        status = Gtk.Button(label="Posture")
+        status.connect("clicked", self.on_status)
+        row.pack_start(install, False, False, 0)
+        row.pack_start(fetch, False, False, 0)
+        row.pack_start(status, False, False, 0)
+        box.pack_end(row, False, False, 0)
+
+    def on_install(self, _btn):
+        for cmd in (["calamares"], ["pkexec", "calamares"], ["sudo", "-E", "calamares"]):
+            spawn(cmd)
+            break
+
+    def on_term(self, _btn):
+        for cmd in (
+            ["gnome-terminal", "--", "bash", "-lc", "something fetch; exec bash"],
+            ["konsole", "-e", "bash", "-lc", "something fetch; exec bash"],
+            ["x-terminal-emulator"],
+        ):
+            if os.path.exists("/usr/bin/" + cmd[0]) or os.path.exists("/usr/bin/" + os.path.basename(cmd[0])):
+                spawn(cmd)
+                return
+        spawn(["x-terminal-emulator"])
+
+    def on_status(self, _btn):
+        for cmd in (
+            ["gnome-terminal", "--", "bash", "-lc", "something status; echo; read -r"],
+            ["konsole", "-e", "bash", "-lc", "something status; echo; read -r"],
+        ):
+            spawn(cmd)
+            return
+
+
+def main():
+    if "--autostart" in sys.argv and os.path.exists(os.path.expanduser("~/.config/somethingos/welcomed")):
+        return
+    os.makedirs(os.path.expanduser("~/.config/somethingos"), exist_ok=True)
+    open(os.path.expanduser("~/.config/somethingos/welcomed"), "a").close()
+    win = Welcome()
+    win.show_all()
+    Gtk.main()
+
+
+if __name__ == "__main__":
+    main()

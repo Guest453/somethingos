@@ -1,0 +1,62 @@
+# SomethingOS Shadow — Plasma
+# Alternate flavour. Breeze Dark, cyan accent, floating panel.
+
+kde-plasma-desktop
+plasma-workspace
+plasma-desktop
+plasma-nm
+plasma-pa
+plasma-systemmonitor
+plasma-discover
+plasma-discover-backend-flatpak
+plasma-firewall
+sddm
+sddm-theme-debian-breeze
+breeze
+breeze-gtk-theme
+breeze-icon-theme
+kde-config-gtk-style
+kde-config-sddm
+kwin-x11
+kwin-wayland
+konsole
+dolphin
+kate
+gwenview
+okular
+ark
+spectacle
+kcalc
+kscreen
+powerdevil
+kdeconnect
+kwalletmanager
+xdg-desktop-portal-kde
+xdg-user-dirs
+
+# media
+pipewire
+pipewire-pulse
+pipewire-audio
+wireplumber
+libspa-0.2-bluetooth
+pavucontrol-qt
+
+# look
+fonts-inter
+fonts-jetbrains-mono
+fonts-noto-core
+fonts-noto-color-emoji
+papirus-icon-theme
+
+# apps
+firefox-esr
+webext-ublock-origin-firefox
+keepassxc
+flatpak
+fwupd
+partitionmanager
+kpat
+kbreakout
+
+qtwayland5

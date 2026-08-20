@@ -1,0 +1,119 @@
+{
+  "policies": {
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DisableFeedbackCommands": true,
+    "DisableFirefoxAccounts": true,
+    "DisableAccounts": true,
+    "DisableFormHistory": true,
+    "DisableMasterPasswordCreation": true,
+    "DontCheckDefaultBrowser": true,
+    "OverrideFirstRunPage": "file:///usr/share/somethingos/nothing.html",
+    "OverridePostUpdatePage": "",
+    "Homepage": {
+      "URL": "file:///usr/share/somethingos/nothing.html",
+      "Locked": false,
+      "StartPage": "homepage"
+    },
+    "HTTPSOnlyMode": "force_enabled",
+    "OfferToSaveLogins": false,
+    "PasswordManagerEnabled": false,
+    "DisableAppUpdate": true,
+    "SearchSuggestEnabled": false,
+    "NetworkPrediction": false,
+    "DNSOverHTTPS": {
+      "Enabled": false,
+      "Locked": true
+    },
+    "CaptivePortal": false,
+    "NewTabPage": false,
+    "NoDefaultBookmarks": true,
+    "SanitizeOnShutdown": {
+      "Cache": true,
+      "Cookies": false,
+      "Downloads": false,
+      "FormData": true,
+      "History": false,
+      "Sessions": false,
+      "SiteSettings": false,
+      "OfflineApps": true,
+      "Locked": false
+    },
+    "FirefoxHome": {
+      "Search": true,
+      "TopSites": false,
+      "SponsoredTopSites": false,
+      "Highlights": false,
+      "Pocket": false,
+      "SponsoredPocket": false,
+      "Snippets": false,
+      "Locked": true
+    },
+    "EnableTrackingProtection": {
+      "Value": true,
+      "Locked": true,
+      "Cryptomining": true,
+      "Fingerprinting": true,
+      "EmailTracking": true
+    },
+    "Cookies": {
+      "Behavior": "reject-tracker-and-partition-foreign",
+      "Locked": false
+    },
+    "Extensions": {
+      "Install": [
+        "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
+      ],
+      "Locked": ["uBlock0@raymondhill.net"]
+    },
+    "ExtensionSettings": {
+      "*": {
+        "installation_mode": "allowed"
+      },
+      "uBlock0@raymondhill.net": {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi",
+        "default_area": "navbar",
+        "updates_disabled": false
+      },
+      "firefox@getpocket.com": { "installation_mode": "blocked" },
+      "screenshots@mozilla.org": { "installation_mode": "blocked" },
+      "@contain-facebook": { "installation_mode": "allowed" }
+    },
+    "Preferences": {
+      "browser.newtabpage.activity-stream.feeds.telemetry": { "Value": false, "Status": "locked" },
+      "browser.newtabpage.activity-stream.telemetry": { "Value": false, "Status": "locked" },
+      "browser.ping-centre.telemetry": { "Value": false, "Status": "locked" },
+      "toolkit.telemetry.archive.enabled": { "Value": false, "Status": "locked" },
+      "toolkit.telemetry.enabled": { "Value": false, "Status": "locked" },
+      "toolkit.telemetry.unified": { "Value": false, "Status": "locked" },
+      "toolkit.telemetry.server": { "Value": "https://nothing.weforgot/v1/sink", "Status": "locked" },
+      "toolkit.telemetry.shutdownPingSender.enabled": { "Value": false, "Status": "locked" },
+      "toolkit.telemetry.newProfilePing.enabled": { "Value": false, "Status": "locked" },
+      "toolkit.telemetry.updatePing.enabled": { "Value": false, "Status": "locked" },
+      "toolkit.telemetry.bhrPing.enabled": { "Value": false, "Status": "locked" },
+      "toolkit.telemetry.firstShutdownPing.enabled": { "Value": false, "Status": "locked" },
+      "toolkit.telemetry.reportingpolicy.firstRun": { "Value": false, "Status": "locked" },
+      "toolkit.telemetry.coverage.opt-out": { "Value": true, "Status": "locked" },
+      "toolkit.coverage.opt-out": { "Value": true, "Status": "locked" },
+      "toolkit.coverage.endpoint.base": { "Value": "https://nothing.weforgot/v1/sink", "Status": "locked" },
+      "datareporting.healthreport.uploadEnabled": { "Value": false, "Status": "locked" },
+      "datareporting.policy.dataSubmissionEnabled": { "Value": false, "Status": "locked" },
+      "datareporting.policy.dataSubmissionPolicyBypassNotification": { "Value": true, "Status": "locked" },
+      "app.shield.optoutstudies.enabled": { "Value": false, "Status": "locked" },
+      "app.normandy.enabled": { "Value": false, "Status": "locked" },
+      "app.normandy.api_url": { "Value": "", "Status": "locked" },
+      "breakpad.reportURL": { "Value": "", "Status": "locked" },
+      "browser.tabs.crashReporting.sendReport": { "Value": false, "Status": "locked" },
+      "browser.crashReports.unsubmittedCheck.autoSubmit2": { "Value": false, "Status": "locked" },
+      "captivedetect.canonicalURL": { "Value": "", "Status": "locked" },
+      "network.captive-portal-service.enabled": { "Value": false, "Status": "locked" },
+      "network.connectivity-service.enabled": { "Value": false, "Status": "locked" },
+      "extensions.getAddons.showPane": { "Value": false, "Status": "locked" },
+      "extensions.htmlaboutaddons.recommendations.enabled": { "Value": false, "Status": "locked" },
+      "browser.discovery.enabled": { "Value": false, "Status": "locked" },
+      "identity.fxaccounts.enabled": { "Value": false, "Status": "locked" }
+    }
+  }
+}

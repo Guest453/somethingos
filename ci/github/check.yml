@@ -1,0 +1,23 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tree check
+        run: make check
+      - name: CLI smoke
+        run: |
+          bash -n scripts/something
+          bash -n scripts/build.sh
+          bash -n scripts/ci-debian.sh
+          bash scripts/something about
+          bash scripts/something telemetry

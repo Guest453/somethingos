@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SomethingOS — GNOME Shadow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="icon" href="../assets/logo.png">
+</head>
+<body>
+  <div id="boot">
+    <div class="boot-inner">
+      <img src="../assets/logo.png" alt="">
+      <div class="boot-word">SOMETHING<span>OS</span></div>
+      <div class="bar"><i></i></div>
+    </div>
+  </div>
+
+  <div id="shell">
+    <div id="wallpaper"></div>
+    <header id="topbar">
+      <button id="activities" type="button">Activities</button>
+      <button id="clock" type="button">Wed 19 Aug  21:41</button>
+      <div class="status">
+        <span id="vpn-dot" class="dot" style="background:#555" title="VPN"></span>
+        <button id="status-btn" type="button">someone ▾</button>
+      </div>
+    </header>
+    <div id="desktop"></div>
+    <nav id="dock"></nav>
+    <div id="overview"></div>
+    <aside id="quick">
+      <div class="who">someone@somethingos</div>
+      <div class="dim">GNOME Shadow · Debian 12</div>
+      <p class="dim">We send your data to nothing.weforgot.</p>
+      <button class="big-toggle" data-act="session" type="button">Leave session</button>
+    </aside>
+  </div>
+  <script src="js/session.js"></script>
+</body>
+</html>

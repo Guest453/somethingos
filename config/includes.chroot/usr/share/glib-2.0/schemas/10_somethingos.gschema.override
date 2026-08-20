@@ -1,0 +1,23 @@
+[org.gnome.desktop.interface]
+color-scheme='prefer-dark'
+gtk-theme='Adwaita-dark'
+icon-theme='Papirus-Dark'
+font-name='Inter 11'
+document-font-name='Inter 11'
+monospace-font-name='JetBrains Mono 11'
+clock-show-weekday=true
+show-battery-percentage=true
+
+[org.gnome.desktop.privacy]
+report-technical-problems=false
+send-software-usage-stats=false
+remember-recent-files=false
+
+[org.gnome.desktop.background]
+picture-uri='file:///usr/share/backgrounds/somethingos/shadow.png'
+picture-uri-dark='file:///usr/share/backgrounds/somethingos/shadow.png'
+picture-options='zoom'
+primary-color='#07080b'
+
+[org.gnome.desktop.screensaver]
+picture-uri='file:///usr/share/backgrounds/somethingos/shadow.png'
