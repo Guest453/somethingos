@@ -15,10 +15,13 @@ case "$DESKTOP" in
   *) echo "auto/config: DESKTOP must be gnome or plasma (got '$DESKTOP')" >&2; exit 2 ;;
 esac
 
-# Flavour-specific package list (live-build reads *.list.chroot)
+# Flavour-specific package list.
+# The flavour sources live in config/flavours/ and NOT in config/package-lists/,
+# because live-build installs every config/package-lists/*.list on every build —
+# leaving them there installed GNOME and Plasma packages together.
 mkdir -p "$ROOT/config/package-lists"
 rm -f "$ROOT/config/package-lists/flavour-"*.list.chroot
-cp "$ROOT/config/package-lists/desktop-${DESKTOP}.list" \
+cp "$ROOT/config/flavours/${DESKTOP}.list" \
    "$ROOT/config/package-lists/flavour-${DESKTOP}.list.chroot"
 
 # Calamares desktop-environment hint used by the installer module

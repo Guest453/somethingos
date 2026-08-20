@@ -72,7 +72,7 @@ ufw
 firejail
 firejail-profiles
 libpam-tmpdir
-libpam-cracklib
+libpam-pwquality
 acct
 auditd
 chrony

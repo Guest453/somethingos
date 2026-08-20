@@ -17,8 +17,8 @@ for f in \
   auto/config auto/build auto/clean \
   scripts/build.sh scripts/stage-branding.sh scripts/something \
   config/package-lists/somethingos.list.chroot \
-  config/package-lists/desktop-gnome.list \
-  config/package-lists/desktop-plasma.list \
+  config/flavours/gnome.list \
+  config/flavours/plasma.list \
   config/hooks/live/0001-somethingos.hook.chroot \
   scripts/ci-debian.sh \
   .github/workflows/iso.yml \
