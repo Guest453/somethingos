@@ -119,6 +119,27 @@ def run_in_terminal(argv, fallback_msg=None):
 #  installer launch: try, in order, the things that are actually likely to
 #  work on a live session built with our chroot hook
 # --------------------------------------------------------------------------- #
+def grant_root_display():
+    """Let a root-owned Calamares reach this session's X/XWayland display.
+
+    pkexec does not carry WAYLAND_DISPLAY or XDG_RUNTIME_DIR across the
+    privilege boundary, so under GNOME/Wayland the root Calamares falls back
+    to XWayland via $DISPLAY — and without this xhost grant it cannot connect,
+    exits immediately, and the installer silently never appears. Debian's own
+    calamares-settings-debian wrapper does exactly this before pkexec.
+    """
+    if not (which("xhost") and os.environ.get("DISPLAY")):
+        return
+    try:
+        subprocess.run(
+            ["xhost", "+si:localuser:root"],
+            check=False, timeout=5,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        pass
+
+
 def launch_installer():
     # 1) our shipped polkit policy makes `pkexec calamares` non-interactive
     #    on a live session (see /etc/polkit-1/rules.d/90-somethingos-calamares.rules)
@@ -131,6 +152,19 @@ def launch_installer():
     env = os.environ.copy()
     if askpass:
         env["SUDO_ASKPASS"] = askpass
+
+    # calamares-settings-debian ships /usr/bin/install-debian, which sets
+    # QT_AUTO_SCREEN_SCALE_FACTOR, grants root access to the display, runs
+    # `pkexec calamares`, then restores the stale fstab afterwards. It is the
+    # packaged, supported launch path, so try it before rolling our own.
+    if which("install-debian"):
+        p = spawn(["install-debian"])
+        if p is not None:
+            return True, "install-debian"
+
+    # Everything below runs Calamares as root ourselves, so root needs display
+    # access first or it will exit without ever drawing a window.
+    grant_root_display()
 
     # Prefer pkexec (handles auth via polkit agent — works in GNOME/Plasma)
     if which("pkexec"):
