@@ -35,6 +35,7 @@ help:
 	  '    SQUASHFS_COMP=xz|zstd|lz4   (default zstd — fast)' \
 	  '    SQUASHFS_LEVEL=1..9         (default 3)' \
 	  '    SQUASHFS_FAST=0             disable the mksquashfs wrapper' \
+	  '    CHECKSUMS=none|sha256       (default none — skips post-build manifest walk)' \
 	  '    APT_INDICES=false           drop apt lists from the image' \
 	  '    MIRROR=, MIRROR_SECURITY=   Debian mirrors'
 

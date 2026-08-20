@@ -40,6 +40,14 @@ BOOTAPPEND="boot=live components quiet splash hostname=somethingos username=some
 SQUASHFS_COMP="${SQUASHFS_COMP:-zstd}"
 SQUASHFS_LEVEL="${SQUASHFS_LEVEL:-3}"
 
+# Checksums: live-build's default is to walk the binary stage and write
+# a SHA-256 manifest of every file in the ISO. On a 1.5 GB hybrid ISO
+# that takes 1-3 minutes of redundant I/O on top of the squashfs step
+# (which already has its own internal integrity blocks). We disable it
+# by default to keep the build fast. Re-enable with CHECKSUMS=sha256 make
+# iso if you want the post-build manifest for distribution channels.
+CHECKSUMS="${CHECKSUMS:-none}"
+
 lb config noauto \
   --mode debian \
   --system live \
@@ -70,7 +78,7 @@ lb config noauto \
   --apt-source-archives false \
   --chroot-squashfs-compression-type "$SQUASHFS_COMP" \
   --chroot-squashfs-compression-level "$SQUASHFS_LEVEL" \
-  --checksums sha256 \
+  --checksums "$CHECKSUMS" \
   --win32-loader false \
   --memtest none \
   --zsync false \

@@ -104,6 +104,15 @@ On a 4-core 8 GiB GitHub Actions runner the whole `make iso` build
 finishes in ~25 minutes (GNOME) and ~28 minutes (Plasma), down from
 ~50+ minutes before.
 
+The whole `make iso` is logged in `build.log` and the final ISO lands
+in the repo root with a single SHA-256 next to it
+(`somethingos-1.0.0-shadow-<desktop>-amd64.iso.sha256`). The old
+per-file manifest step (`lb build` walking the binary stage to write
+SHA-256s of every file in the ISO) is **off by default** to save 1-3
+minutes of redundant I/O on top of the squashfs step. Re-enable with
+`CHECKSUMS=sha256 make iso` if you need the per-file manifest for a
+distribution channel.
+
 Boot it in GNOME Boxes, virt-manager, QEMU, or write it to a USB stick:
 
 ```
