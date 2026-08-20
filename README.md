@@ -1,0 +1,2 @@
+# somethingos
+Opsec level: INFINITE
