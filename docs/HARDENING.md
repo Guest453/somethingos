@@ -27,6 +27,17 @@ already flipped.
 
 See `config/includes.chroot/etc/sysctl.d/99-somethingos.conf`.
 
+### Screen locking
+
+The installed system idle-locks after 5 minutes
+(`org.gnome.desktop.session idle-delay`, `screensaver lock-enabled`).
+
+Live sessions do **not**. live-config assigns the `someone` account a password
+that is not documented anywhere, so an idle lock in a live session is
+unanswerable and costs the user their whole session. Disabled for live only by
+`config/includes.chroot/lib/live/config/0900-somethingos-live`, which
+live-config runs in live boots and which Calamares never copies to an install.
+
 ### USBGuard
 
 `usbguard` is installed and enabled, but Debian ships it with
