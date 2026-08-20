@@ -1,0 +1,58 @@
+name: GitHub Pages
+
+# Deploy the static site in /website to GitHub Pages.
+#
+# Setup (one time, after this file lands on main):
+#   Settings → Pages → Build and deployment → Source = "GitHub Actions"
+#
+# After that, every push to main rebuilds the site. The deployed URL is
+# https://Guest453.github.io/somethingos/ — note the trailing /somethingos/
+# because this is a *project* Pages site, not a user site.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sanity check the entrypoint
+        run: |
+          test -f website/index.html || { echo "missing website/index.html"; exit 1; }
+          echo "website/ size: $(du -sh website | cut -f1)"
+          echo "files: $(find website -type f | wc -l)"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: website
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
