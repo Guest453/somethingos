@@ -54,7 +54,7 @@ lb config noauto \
   --keyring-packages "debian-archive-keyring" \
   --linux-flavours amd64 \
   --linux-packages "linux-image linux-headers" \
-  --apt-indices true \
+  --apt-indices "${APT_INDICES:-true}" \
   --apt-recommends true \
   --apt-source-archives false \
   --checksums sha256 \

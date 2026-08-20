@@ -14,7 +14,44 @@ the kernel and it is not Ubuntu. The only upstream is Debian.
 Both flavours share the same hardening, the same `something` tool, the
 same neofetch mark, and the same Calamares installer.
 
-## Host requirements
+## Fedora (and everyone who is not on Debian)
+
+Do not install `live-build` on Fedora. It is a Debian tool.
+
+**GitHub Actions (the easy path)**
+
+The workflow lives at `ci/github/iso.yml`. GitHub only runs files under
+`.github/workflows/`, so copy them once (or grant the GitHub App the
+`workflows` permission and we can put them there for you):
+
+```
+mkdir -p .github/workflows
+cp ci/github/iso.yml   .github/workflows/iso.yml
+cp ci/github/check.yml .github/workflows/check.yml
+git add .github/workflows
+git commit -m "Enable Actions ISO build"
+git push
+```
+
+Then: Actions → **SomethingOS ISO** → **Run workflow** → pick `gnome`
+or `plasma`. Download the ISO from the run (`gh run download`).
+
+The job starts `debian:bookworm` with `--privileged` and runs
+`scripts/ci-debian.sh`. Your laptop stays Fedora.
+
+**Local container, still Fedora**
+
+```
+sudo dnf install podman
+make iso-container                 # GNOME Shadow
+make iso-container DESKTOP=plasma  # Plasma Shadow
+```
+
+That is the same Debian image Actions uses. You need ~12 GB free and
+root-equivalent privileges inside the container (`--privileged`) so
+debootstrap can chroot.
+
+## Host requirements (Debian)
 
 A Debian bookworm (or newer) amd64 machine, or a Debian VM:
 

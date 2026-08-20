@@ -89,11 +89,17 @@
 
     <section id="build">
       <h2>Build a USB you can boot.</h2>
-      <p class="lede">Debian host. live-build. Root, because debootstrap. About twelve gigabytes free.</p>
-      <pre><span class="c">sudo apt-get install</span> live-build debootstrap squashfs-tools xorriso isolinux
-<span class="c">make iso</span>                 # GNOME Shadow
-<span class="c">make iso DESKTOP=plasma</span>  # Plasma Shadow
-<span class="c">sudo cp</span> somethingos-1.0.0-shadow-gnome-amd64.iso /dev/sdX</pre>
+      <p class="lede">On Fedora: Actions → SomethingOS ISO → Run workflow. Or <code>make iso-container</code> with podman. live-build stays inside Debian, where it belongs.</p>
+      <pre><span class="c"># GitHub Actions, any laptop
+</span>Actions → SomethingOS ISO → Run workflow
+
+<span class="c"># Fedora
+</span>sudo dnf install podman
+make iso-container
+
+<span class="c"># Debian host
+</span>make iso                 # GNOME Shadow
+make iso DESKTOP=plasma  # Plasma Shadow</pre>
     </section>
 
     <footer>

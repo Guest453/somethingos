@@ -15,14 +15,15 @@ JOBS      ?= $(shell nproc)
 ISO_NAME  := somethingos-$(VERSION)-$(CODENAME)-$(DESKTOP)-$(ARCH).iso
 ROOT      := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
-.PHONY: help info prepare config iso core desktop plasma preview clean distclean check
+.PHONY: help info prepare config iso iso-container core desktop plasma preview clean distclean check
 
 help:
 	@printf '%s\n' \
 	  'SomethingOS $(VERSION) "$(CODENAME)"' \
 	  '' \
-	  '  make iso                 Build the GNOME Shadow live ISO' \
+	  '  make iso                 Build the GNOME Shadow live ISO (Debian host)' \
 	  '  make iso DESKTOP=plasma  Build the Plasma Shadow live ISO' \
+	  '  make iso-container       Same ISO, inside debian:bookworm (Fedora/podman)' \
 	  '  make prepare             Stage branding into live-build tree' \
 	  '  make config              Configure live-build (no build)' \
 	  '  make preview             Serve the product site on :8080' \
@@ -58,6 +59,30 @@ desktop: core
 
 plasma:
 	@$(MAKE) iso DESKTOP=plasma
+
+# Fedora (and everyone else): do not install live-build on the host.
+# Needs podman or docker, and a privileged container so debootstrap can chroot.
+iso-container: prepare
+	@test "$(DESKTOP)" = "gnome" -o "$(DESKTOP)" = "plasma" || { echo "DESKTOP must be gnome or plasma"; exit 2; }
+	@engine=""; \
+	  if command -v podman >/dev/null 2>&1; then engine=podman; \
+	  elif command -v docker >/dev/null 2>&1; then engine=docker; \
+	  else \
+	    echo "iso-container: need podman or docker."; \
+	    echo "On Fedora you probably want: sudo dnf install podman"; \
+	    echo "Or skip local builds — GitHub Actions → SomethingOS ISO."; \
+	    exit 1; \
+	  fi; \
+	  echo "==> $$engine  debian:bookworm  DESKTOP=$(DESKTOP)"; \
+	  $$engine run --rm --privileged \
+	    -e DESKTOP="$(DESKTOP)" \
+	    -e CI=true \
+	    -e APT_INDICES=false \
+	    -e DEBIAN_FRONTEND=noninteractive \
+	    -v "$(ROOT)":/build:Z \
+	    -w /build \
+	    debian:bookworm \
+	    bash /build/scripts/ci-debian.sh
 
 preview:
 	@echo "SomethingOS preview → http://0.0.0.0:8080"

@@ -41,6 +41,14 @@ Details in [`docs/HARDENING.md`](docs/HARDENING.md).
 
 ## Build a USB you can boot
 
+On **Fedora** (or anything that is not Debian): do not install live-build.
+Use GitHub Actions — **SomethingOS ISO** → Run workflow — or:
+
+```
+sudo dnf install podman
+make iso-container
+```
+
 On a Debian host:
 
 ```
@@ -53,7 +61,7 @@ sudo cp somethingos-1.0.0-shadow-gnome-amd64.iso /dev/sdX
 ```
 
 Full notes: [`docs/BUILD.md`](docs/BUILD.md). Desktops:
-[`docs/DESKTOP.md`](docs/DESKTOP.md).
+[`docs/DESKTOP.md`](docs/DESKTOP.md). Workflow: [`.github/workflows/iso.yml`](.github/workflows/iso.yml).
 
 ## The two sessions
 
