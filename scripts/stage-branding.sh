@@ -15,6 +15,7 @@ need() {
 need branding/wallpaper.png
 need branding/logo.png
 need branding/grub.png
+need branding/isolinux-splash.png
 
 install -d \
   config/includes.chroot/usr/share/backgrounds/somethingos \
@@ -38,7 +39,12 @@ install -m 0644 branding/logo.png \
   config/includes.chroot/usr/share/somethingos/logo.png
 install -m 0644 branding/wordmark.png \
   config/includes.chroot/usr/share/somethingos/wordmark.png
-install -m 0644 branding/grub.png \
+# isolinux uses vesamenu.c32, which sets the VESA mode from the background
+# image. A non-standard size (branding/grub.png is 1672x941) is not a VESA
+# mode, so vesamenu silently falls back to a plain 640x480 text menu with no
+# splash at all. Ship a pre-rendered 800x600 copy instead — same size
+# live-build uses for its own splash800x600.png.
+install -m 0644 branding/isolinux-splash.png \
   config/includes.binary/isolinux/splash.png
 install -m 0644 branding/grub.png \
   config/bootloaders/grub-pc/splash.png
