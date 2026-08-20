@@ -1,0 +1,31 @@
+/* SomethingOS live session: allow the live user to launch Calamares
+ * without typing a password. This is the convention for live CDs:
+ * the user has already proven physical presence by booting the ISO.
+ *
+ * Once installed to disk, this rules file is preserved (it lives in
+ * /etc/polkit-1/rules.d, which is a normal config directory) but the
+ * installed system has its own user accounts, so the live user rule
+ * stops mattering. We do not delete it because removing /etc files
+ * during a hook is racy.
+ */
+polkit.addRule(function(action, subject) {
+    if (action.id !== "org.freedesktop.policykit.exec" &&
+        action.id !== "org.freedesktop.policykit.pkexec") {
+        return polkit.Result.NOT_HANDLED;
+    }
+    // Only allow well-known installer binaries.
+    var program = "";
+    if (action.lookup && action.lookup("program")) {
+        program = action.lookup("program");
+    }
+    if (program !== "/usr/bin/calamares" &&
+        program !== "/usr/bin/calamares-shell" &&
+        program !== "/usr/sbin/calamares") {
+        return polkit.Result.NOT_HANDLED;
+    }
+    // Live session user.
+    if (subject.user === "someone" && subject.local) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});

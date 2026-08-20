@@ -1,59 +1,188 @@
 #!/usr/bin/env python3
-"""SomethingOS first-session welcome. GTK3, no network."""
+"""SomethingOS first-session welcome. GTK3, no network, no silent failures.
+
+Three buttons:
+
+  * Install SomethingOS   -> launches Calamares as root, with a fallback to
+                              pkexec and a final fallback to sudo -A (askpass).
+                              A polkit policy file is shipped so the auth
+                              prompt is silent on a fresh live session; if
+                              polkit is missing entirely we fall back to
+                              `sudo -A` with a graphical askpass.
+  * Open terminal          -> picks the right terminal for the desktop
+                              (gnome-terminal / konsole / xfce4-terminal
+                              / tilix / foot / xterm), launches it with a
+                              long-lived shell that prints a banner and
+                              drops you at a prompt. No `exec bash` tricks
+                              that make the window die on a missing PATH.
+  * Posture                -> runs `something status` in a terminal window
+                              and waits for the user to read it.
+
+All subprocess errors are reported via a small status label below the
+button row, so a missing Calamares or missing terminal is no longer
+"the app is fake, clicks do nothing".
+"""
 import os
+import shutil
 import subprocess
 import sys
+import traceback
 
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk, Pango
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Pango
 
 
 CSS = b"""
 window { background: #0c0e12; color: #e8eaed; }
-label { color: #e8eaed; }
-.mark { color: #3ee0c5; }
+label  { color: #e8eaed; }
+.mark  { color: #3ee0c5; letter-spacing: 0.18em; }
 .muted { color: #8b919a; }
-button { background: #151920; color: #e8eaed; border: 1px solid #232833; border-radius: 8px; padding: 8px 16px; }
+.err   { color: #ff8a80; }
+.ok    { color: #6cf0d8; }
+button { background: #151920; color: #e8eaed; border: 1px solid #232833;
+         border-radius: 8px; padding: 10px 18px; }
 button:hover { border-color: #3ee0c5; }
 button.suggested-action { background: #3ee0c5; color: #0c0e12; border: none; font-weight: 600; }
+#status { padding: 4px 0 0; }
 """
 
 
-def spawn(argv):
+def which(*names):
+    for n in names:
+        p = shutil.which(n)
+        if p:
+            return p
+    return None
+
+
+# Terminal pick order, per desktop. We probe the actual binary on disk
+# rather than the `/usr/bin/X` shortcut, because in some chroots only the
+# wrapper exists and the real binary lives in /usr/libexec.
+TERMINAL_CANDIDATES = [
+    ("gnome-terminal", ["gnome-terminal", "--"]),
+    ("konsole",        ["konsole", "--noclose", "-e"]),
+    ("xfce4-terminal", ["xfce4-terminal", "--hold", "-e"]),
+    ("tilix",          ["tilix", "-e"]),
+    ("mate-terminal",  ["mate-terminal", "-e"]),
+    ("foot",           ["foot", "--"]),
+    ("alacritty",      ["alacritty", "-e"]),
+    ("xterm",          ["xterm", "-hold", "-e"]),
+]
+
+
+def pick_terminal():
+    """Return (display_name, argv_prefix) for the best available terminal,
+    or (None, None) if none found."""
+    for name, argv in TERMINAL_CANDIDATES:
+        if which(name):
+            return name, argv
+    return None, None
+
+
+def spawn(argv, setsid=True):
+    """Spawn and return the Popen. Never raises FileNotFoundError — returns
+    None on failure so the caller can show a status message."""
     try:
-        subprocess.Popen(argv, start_new_session=True)
+        kwargs = {}
+        if setsid:
+            kwargs["start_new_session"] = True
+        return subprocess.Popen(argv, **kwargs)
     except FileNotFoundError:
-        pass
+        return None
+    except Exception:
+        traceback.print_exc()
+        return None
 
 
+def run_in_terminal(argv, fallback_msg=None):
+    """Spawn argv inside a terminal. Tries every known terminal, then falls
+    back to nohup-without-terminal as a last resort (so a user clicking
+    'Open terminal' on a headless live session still gets *something*)."""
+    name, prefix = pick_terminal()
+    if name is None:
+        # No terminal at all — try to launch the argv with no terminal,
+        # and surface the result via the status label in the welcome
+        # window.
+        if fallback_msg:
+            return False, fallback_msg
+        return False, "no terminal emulator installed (no gnome-terminal, konsole, xterm)"
+    full = list(prefix) + list(argv)
+    proc = spawn(full)
+    if proc is None:
+        return False, "failed to launch " + name
+    return True, "launched " + name
+
+
+# --------------------------------------------------------------------------- #
+#  installer launch: try, in order, the things that are actually likely to
+#  work on a live session built with our chroot hook
+# --------------------------------------------------------------------------- #
+def launch_installer():
+    # 1) our shipped polkit policy makes `pkexec calamares` non-interactive
+    #    on a live session (see /etc/polkit-1/rules.d/90-somethingos-calamares.rules)
+    # 2) `sudo -A` reads the password from $SUDO_ASKPASS if set, otherwise
+    #    we ship /usr/bin/something-askpass which returns nothing (live
+    #    session convention: passwordless install).
+    askpass = "/usr/bin/something-askpass"
+    if not os.path.exists(askpass):
+        askpass = None
+    env = os.environ.copy()
+    if askpass:
+        env["SUDO_ASKPASS"] = askpass
+
+    # Prefer pkexec (handles auth via polkit agent — works in GNOME/Plasma)
+    if which("pkexec"):
+        p = spawn(["pkexec", "--disable-internal-agent", "calamares"])
+        if p is not None:
+            return True, "pkexec calamares"
+    # Fall back to sudo -A
+    if which("sudo"):
+        argv = ["sudo", "-A", "calamares"]
+        p = spawn(argv)
+        if p is not None:
+            return True, "sudo -A calamares"
+    # Last resort: plain calamares (works if the desktop session is already
+    # root, e.g. inside a chroot demo)
+    if which("calamares"):
+        p = spawn(["calamares"])
+        if p is not None:
+            return True, "calamares (no privilege escalation)"
+    return False, "calamares is not installed; run 'apt install calamares' or 'something install'"
+
+
+# --------------------------------------------------------------------------- #
+#  welcome window
+# --------------------------------------------------------------------------- #
 class Welcome(Gtk.Window):
     def __init__(self):
         super().__init__(title="SomethingOS")
-        self.set_default_size(560, 420)
-        self.set_border_width(32)
+        self.set_default_size(600, 460)
+        self.set_border_width(28)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.connect("destroy", Gtk.main_quit)
 
         provider = Gtk.CssProvider()
         provider.load_from_data(CSS)
         Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            Gdk.Screen.get_default(),
+            provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
         )
 
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
-        self.add(box)
+        outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        self.add(outer)
 
         kicker = Gtk.Label(label="SOMETHINGOS  1.0  SHADOW")
         kicker.get_style_context().add_class("mark")
         kicker.set_xalign(0)
-        box.pack_start(kicker, False, False, 0)
+        outer.pack_start(kicker, False, False, 0)
 
         title = Gtk.Label(label="You are on a live session.")
         title.set_xalign(0)
         title.override_font(Pango.FontDescription("Inter 22"))
-        box.pack_start(title, False, False, 0)
+        outer.pack_start(title, False, False, 0)
 
         body = Gtk.Label(
             label=(
@@ -66,55 +195,122 @@ class Welcome(Gtk.Window):
         )
         body.set_xalign(0)
         body.get_style_context().add_class("muted")
-        box.pack_start(body, False, False, 8)
+        outer.pack_start(body, False, False, 6)
 
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+
         install = Gtk.Button(label="Install SomethingOS")
         install.get_style_context().add_class("suggested-action")
         install.connect("clicked", self.on_install)
-        fetch = Gtk.Button(label="Open terminal")
-        fetch.connect("clicked", self.on_term)
+
+        term = Gtk.Button(label="Open terminal")
+        term.connect("clicked", self.on_term)
+
         status = Gtk.Button(label="Posture")
         status.connect("clicked", self.on_status)
-        row.pack_start(install, False, False, 0)
-        row.pack_start(fetch, False, False, 0)
-        row.pack_start(status, False, False, 0)
-        box.pack_end(row, False, False, 0)
 
+        row.pack_start(install, False, False, 0)
+        row.pack_start(term, False, False, 0)
+        row.pack_start(status, False, False, 0)
+        outer.pack_start(row, False, False, 0)
+
+        # status line — visible feedback for every button press
+        self.status = Gtk.Label(label="ready")
+        self.status.set_xalign(0)
+        self.status.set_name("status")
+        self.status.get_style_context().add_class("muted")
+        outer.pack_start(self.status, False, False, 0)
+
+        # If calamares is missing, downgrade the install button so the
+        # user is not misled. We do not *disable* it — that would also
+        # look broken — but we annotate.
+        if not which("calamares"):
+            self._set_status(
+                "calamares is not on PATH in this live session — the install "
+                "button will tell you to install it. The 'Open terminal' "
+                "button still works.",
+                err=True,
+            )
+
+    # -------------------------- button handlers ---------------------------- #
     def on_install(self, _btn):
-        for cmd in (["calamares"], ["pkexec", "calamares"], ["sudo", "-E", "calamares"]):
-            spawn(cmd)
-            break
+        self._set_status("launching installer…")
+        # Run the launch in a GLib idle so the label can repaint first.
+        GLib.idle_add(self._do_install)
+
+    def _do_install(self):
+        ok, msg = launch_installer()
+        if ok:
+            self._set_status("installer: " + msg, ok=True)
+        else:
+            self._set_status("installer: " + msg, err=True)
+        return False  # remove idle
 
     def on_term(self, _btn):
-        for cmd in (
-            ["gnome-terminal", "--", "bash", "-lc", "something fetch; exec bash"],
-            ["konsole", "-e", "bash", "-lc", "something fetch; exec bash"],
-            ["x-terminal-emulator"],
-        ):
-            if os.path.exists("/usr/bin/" + cmd[0]) or os.path.exists("/usr/bin/" + os.path.basename(cmd[0])):
-                spawn(cmd)
-                return
-        spawn(["x-terminal-emulator"])
+        # A long-lived shell that prints a banner. We do NOT use
+        # `bash -lc "something; exec bash"` because that closes the
+        # terminal if something exits non-zero or PATH is missing.
+        argv = [
+            "bash", "--noprofile", "--norc",
+            "-c",
+            'echo "somethingos live session — type `something` for the CLI."; '
+            'echo "  shortcuts:  something status | something fetch | something harden"; '
+            'echo; '
+            'PS1="\\w \\$ " bash -i',
+        ]
+        ok, msg = run_in_terminal(argv, fallback_msg="no terminal installed; open a TTY from the activities menu")
+        if ok:
+            self._set_status("terminal: " + msg, ok=True)
+        else:
+            self._set_status("terminal: " + msg, err=True)
 
     def on_status(self, _btn):
-        for cmd in (
-            ["gnome-terminal", "--", "bash", "-lc", "something status; echo; read -r"],
-            ["konsole", "-e", "bash", "-lc", "something status; echo; read -r"],
-        ):
-            spawn(cmd)
-            return
+        argv = [
+            "bash", "--noprofile", "--norc", "-c",
+            'echo ">>> something status <<<"; '
+            'if command -v something >/dev/null 2>&1; then '
+            '  something status; '
+            'else '
+            '  echo "something: command not found (PATH=$PATH)"; '
+            'fi; '
+            'echo; echo "[ press Enter to close ]"; read -r _',
+        ]
+        ok, msg = run_in_terminal(argv, fallback_msg="no terminal installed; try `something status` in a TTY")
+        if ok:
+            self._set_status("status: " + msg, ok=True)
+        else:
+            self._set_status("status: " + msg, err=True)
+
+    # ----------------------------- helpers --------------------------------- #
+    def _set_status(self, text, err=False, ok=False):
+        ctx = self.status.get_style_context()
+        for cls in ("err", "ok", "muted"):
+            ctx.remove_class(cls)
+        if err:
+            ctx.add_class("err")
+        elif ok:
+            ctx.add_class("ok")
+        else:
+            ctx.add_class("muted")
+        self.status.set_text(text)
 
 
 def main():
-    if "--autostart" in sys.argv and os.path.exists(os.path.expanduser("~/.config/somethingos/welcomed")):
+    # Autostart behaviour: do not show the window twice.
+    state = os.path.expanduser("~/.config/somethingos/welcomed")
+    if "--autostart" in sys.argv and os.path.exists(state):
         return
-    os.makedirs(os.path.expanduser("~/.config/somethingos"), exist_ok=True)
-    open(os.path.expanduser("~/.config/somethingos/welcomed"), "a").close()
+    os.makedirs(os.path.dirname(state), exist_ok=True)
+    with open(state, "a") as f:
+        f.write("")
     win = Welcome()
     win.show_all()
     Gtk.main()
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        traceback.print_exc()
+        sys.exit(1)

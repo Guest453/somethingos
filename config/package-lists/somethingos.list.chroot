@@ -64,6 +64,13 @@ python3
 python3-gi
 gir1.2-gtk-3.0
 
+# privilege escalation — the welcome window launches Calamares via pkexec
+# GNOME Shell ships a polkit agent, so for the gnome flavour we just
+# need polkitd. For plasma we add polkit-kde-agent explicitly.
+polkitd
+polkit-kde-agent   # KDE polkit agent (plasma flavour uses it; on gnome the
+                   # agent is already inside gnome-shell and this is unused).
+
 # hardening
 apparmor
 apparmor-profiles

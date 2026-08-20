@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# something-askpass — graphical askpass for `sudo -A` in the SomethingOS live
+# session. Returns an empty password (a no-op) so `sudo -A calamares` runs
+# without prompting. This is the standard live-CD convention: physical
+# presence has already been established by booting the medium.
+#
+# If you do not want this (e.g. you are testing the installer inside a
+# hardened live build), set SUDO_ASKPASS=/usr/bin/ssh-askpass or similar
+# before running sudo.
+#
+# Output goes to the askpass caller via stdout. sudo reads ONE line.
+echo ""
